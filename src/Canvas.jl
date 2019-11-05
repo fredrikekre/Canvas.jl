@@ -26,37 +26,78 @@ OAuth2() = OAuth2(ENV["CANVAS_TOKEN"])
 
 struct CanvasAPI
     uri::HTTP.URI
+    auth::Union{OAuth2,Nothing}
 end
-CanvasAPI(str::String) = CanvasAPI(HTTP.URI(str))
+CanvasAPI(uri::HTTP.URI; auth::Union{OAuth2,Nothing}=nothing) = CanvasAPI(uri, auth)
+CanvasAPI(str::String; auth::Union{OAuth2,Nothing}=nothing) = CanvasAPI(HTTP.URI(str), auth)
 
-function authenticate_headers!(headers, auth::Union{Nothing,OAuth2})
-    if auth !== nothing
-        headers["Authorization"] = "Bearer $(String(copy(auth.token.data)))"
+function update_headers!(headers, api::CanvasAPI)
+    headers = convert(Dict{String, String}, headers)
+    if !haskey(headers, "Authorization") && api.auth !== nothing
+        headers["Authorization"] = "Bearer $(String(copy(api.auth.token.data)))"
     end
-    !haskey(headers, "User-Agent") && (headers["User-Agent"] = "Canvas.jl")
+    if !haskey(headers, "User-Agent")
+        headers["User-Agent"] = "Canvas.jl"
+    end
     return headers
 end
 
-function canvas_get(api::CanvasAPI, endpoint=""; headers=Dict(), params=Dict(), auth::Union{Nothing,OAuth2}=nothing)
-    headers = convert(Dict{String, String}, headers)
-    authenticate_headers!(headers, auth)
+function get(api::CanvasAPI, endpoint="";
+                   headers=Dict{String, String}(), params=Dict{String,String}(), start_page="")
+    update_headers!(headers, api)
+
     url = HTTP.merge(api.uri, path=endpoint, query=params)
     r = HTTP.get(url, headers)
-    return r
-end
-
-function canvas_get_json(api::CanvasAPI, endpoint=""; kwargs...)
-    r = canvas_get(api, endpoint; kwargs...)
     payload = HTTP.payload(r, String)
     return JSON.parse(payload)
 end
+
+function paged_get(api::CanvasAPI, endpoint="";
+                   headers=Dict{String, String}(), params=Dict{String,String}(), start_page="", page_limit=typemax(Int))
+    headers = update_headers!(headers, api)
+    if isempty(start_page) # first request
+        url = HTTP.merge(api.uri, path=endpoint, query=params)
+        r = HTTP.get(url, headers)
+    else
+        isempty(params) || throw(ArgumentError("`start_page` kwarg is incompatible with `params` kwarg"))
+        r = HTTP.get(start_page, headers)
+    end
+    payload = HTTP.payload(r, String)
+    results = JSON.parse(payload) # append to this
+    page_data = Dict{String, String}()
+    if HTTP.hasheader(r, "Link")
+        page_count = 1
+        while page_count < page_limit
+            links = split(HTTP.header(r, "Link"), ",")
+            idx = findfirst(x->occursin("rel=\"next\"", x), links)
+            idx === nothing && break
+            r = HTTP.get(match(r"<(.*)>", links[idx]).captures[1], headers)
+            payload = HTTP.payload(r, String)
+            append!(results, JSON.parse(payload))
+            page_count += 1
+        end
+        links = split(HTTP.header(r, "Link"), ",")
+        for page in ("current", "next", "prev", "first", "last")
+            idx = findfirst(x->occursin("rel=\"$(page)\"", x), links)
+            if idx !== nothing
+                page_data[page] = match(r"<(.*)>", links[idx]).captures[1]
+            end
+        end
+    end
+    return results, page_data
+end
+
+# function canvas_get_json(api::CanvasAPI, endpoint=""; kwargs...)
+#     r = canvas_get(api, endpoint; kwargs...)
+#     return JSON.parse(payload)
+# end
 
 
 #####################
 # Exposed endpoints #
 #####################
-function courses(api; auth::Union{Nothing,OAuth2}=nothing, params=Dict())
-    canvas_get_json(api, "/api/v1/courses"; auth=auth, params=params)
+function courses(api::CanvasAPI; kwargs...)
+    return paged_get(api, "/api/v1/courses"; kwargs...)
 end
 
 end # module
