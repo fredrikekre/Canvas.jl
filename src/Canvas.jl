@@ -112,7 +112,7 @@ include("github.jl")
 #####################
 
 """
-    courses(; kwargs...) -> Vector{Courses}, page_data
+    courses(; kwargs...) -> Vector{Course}, page_data
 
 Access the `/api/v1/courses` endpoint.
 """
@@ -120,21 +120,54 @@ function courses(; api::CanvasAPI=getapi(), kwargs...)
     rs, page_data = paged_request("GET", "/api/v1/courses"; api=api, kwargs...)
     cs = Course[]
     for r in rs
-        append!(cs, map(x->json2canvas(Course, x), JSON.parse(HTTP.payload(r, String))))
+        append!(cs, map(Course, JSON.parse(HTTP.payload(r, String))))
     end
     return cs, page_data
 end
 
 """
-    course(c; kwargs...) -> Vector{Courses}, page_data
+    course(c; kwargs...) -> Course
 
 Access the `/api/v1/courses/:id` endpoint, where `:id`
 is determined by the `c` argument.
 """
 function course(c; api::CanvasAPI=getapi(), kwargs...)
     r = request("GET", "/api/v1/courses/$(id(c))"; api=api, kwargs...)
-    c = json2canvas(Course, JSON.parse(HTTP.payload(r, String)))
+    c = Course(JSON.parse(HTTP.payload(r, String)))
     return c
+end
+
+"""
+    files(c; kwargs...) -> Vector{File}, page_data
+
+Access the `/api/v1/courses/:course_id/files` endpoint,
+where `:course_id` is determined by the `c` argument.
+"""
+function files(c; api::CanvasAPI=getapi(), kwargs...)
+    rs, page_data = paged_request("GET", "/api/v1/courses/$(id(c))/files"; api=api, kwargs...)
+    fs = File[]
+    for r in rs
+        append!(fs, map(File, JSON.parse(HTTP.payload(r, String))))
+    end
+    return fs, page_data
+end
+
+"""
+    file(f; kwargs...) -> File
+
+Access the `/api/v1/courses/:course_id/files` endpoint,
+where `:course_id` is determined by the `c` argument.
+"""
+function file(f; api::CanvasAPI=getapi(), kwargs...)
+    r = request("GET", "/api/v1/files/$(id(f))"; api=api, kwargs...)
+    f = File(JSON.parse(HTTP.payload(r, String)))
+    return f
+end
+
+function download(f::File, path=tempdir(); kwargs...)
+    mkpath(path)
+    r = HTTP.download(f.url, joinpath(path, f.display_name); kwargs...)
+    return r
 end
 
 end # module
