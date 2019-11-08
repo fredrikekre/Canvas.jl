@@ -7,9 +7,9 @@ module Canvas
 
 import HTTP, JSON, Dates
 
-##################
-# Authentication #
-##################
+####################
+## Authentication ##
+####################
 mutable struct OAuth2
     token::Base.SecretBuffer
     function OAuth2(sb::Base.SecretBuffer)
@@ -20,10 +20,9 @@ end
 OAuth2(str::String) = OAuth2(Base.SecretBuffer(str))
 OAuth2() = OAuth2(ENV["CANVAS_TOKEN"])
 
-################
-# API endpoint #
-################
-
+##################
+## API endpoint ##
+##################
 struct CanvasAPI
     uri::HTTP.URI
     auth::Union{OAuth2,Nothing}
@@ -31,8 +30,23 @@ end
 CanvasAPI(uri::HTTP.URI; auth::Union{OAuth2,Nothing}=nothing) = CanvasAPI(uri, auth)
 CanvasAPI(str::String; auth::Union{OAuth2,Nothing}=nothing) = CanvasAPI(HTTP.URI(str), auth)
 
+# Default API
+const API = Ref{CanvasAPI}()
+setapi!(api::CanvasAPI) = API[] = api
+function getapi()
+    if isassigned(API)
+        return API[]
+    else
+        throw(ArgumentError("no default CanvasAPI set; see `Canvas.setapi!`."))
+    end
+end
+
+###############
+## Utilities ##
+###############
+
 # Set Authorization and User-Agent
-function update_headers(headers, api::CanvasAPI)
+function update_headers!(headers, api::CanvasAPI)
     if !haskey(headers, "Authorization") && api.auth !== nothing
         headers["Authorization"] = "Bearer $(String(copy(api.auth.token.data)))"
     end
@@ -42,22 +56,18 @@ function update_headers(headers, api::CanvasAPI)
     return headers
 end
 
-# function get(api::CanvasAPI, endpoint::String=""; kwargs...)
-#     return request("GET", api, endpoint; kwargs...)
-# end
-
-function request(method::String, api::CanvasAPI, endpoint::String="";
+function request(method::String, endpoint::String=""; api::CanvasAPI=getapi(),
                  headers=Dict{String, String}(), kwargs...)
-    headers = update_headers(headers, api)
+    update_headers!(headers, api)
     uri = HTTP.merge(api.uri, path=endpoint)
     r = HTTP.request(method, uri, headers; kwargs...)
     return r
 end
 
-function paged_request(method::String, api::CanvasAPI, endpoint::String="";
+function paged_request(method::String, endpoint::String=""; api::CanvasAPI=getapi(),
                        headers=Dict{String, String}(), page_limit=typemax(Int),
                        start_page="", query=nothing, kwargs...)
-    headers = update_headers(headers, api)
+    update_headers!(headers, api)
     if isempty(start_page) # first request
         uri = HTTP.merge(api.uri, path=endpoint)
         r = HTTP.request(method, uri, headers; query=query, kwargs...)
@@ -94,99 +104,37 @@ end
 #     return JSON.parse(payload)
 # end
 
-##################
-# Canvas Objects #
-##################
-abstract type CanvasObject end
-
-struct Course <: CanvasObject
-    id::Union{Int,Nothing}
-    sis_course_id::Union{String,Nothing}
-    uuid::Union{String,Nothing}
-    integration_id::Union{String,Nothing}
-    sis_import_id::Union{Int,Nothing}
-    name::Union{String,Nothing}
-    course_code::Union{String,Nothing}
-    workflow_state::Union{String,Nothing}
-    account_id::Union{Int,Nothing}
-    root_account_id::Union{Int,Nothing}
-    enrollment_term_id::Union{Int,Nothing}
-    grading_standard_id::Union{Int,Nothing}
-    grade_passback_setting::Union{String,Nothing}
-    created_at::Union{Dates.DateTime,Nothing}
-    start_at::Union{Dates.DateTime,Nothing}
-    end_at::Union{Dates.DateTime,Nothing}
-    locale::Union{String,Nothing}
-    enrollments::Union{Vector{Dict},Nothing}
-    total_students::Union{Int,Nothing}
-    calendar::Union{Vector{Dict},Nothing}
-    default_view::Union{String,Nothing}
-    syllabus_body::Union{String,Nothing}
-    needs_grading_count::Union{Int,Nothing}
-end
-
-#### GitHub.jl ####
-unwrap_union_types(T) = T
-unwrap_union_types(T::Union) = T.a === Nothing ? T.b : T.a
-
-function extract_nullable(data::Dict, key, ::Type{T}) where {T}
-    # @show key
-    if haskey(data, key)
-        val = data[key]
-        if val !== nothing
-            if T <: Vector
-                V = eltype(T)
-                return V[prune_canvas_value(v, unwrap_union_types(V)) for v in val]
-            else
-                return prune_canvas_value(val, unwrap_union_types(T))
-            end
-        end
-    end
-    return nothing
-end
-
-prune_canvas_value(val::T, ::Type{Any}) where {T} = T(val)
-prune_canvas_value(val, ::Type{T}) where {T} = T(val)
-prune_canvas_value(val::AbstractString, ::Type{Dates.DateTime}) = Dates.DateTime(chopz(val))
-
-# ISO 8601 allows for a trailing 'Z' to indicate that the given time is UTC.
-# Julia's Dates.DateTime constructor doesn't support this, but GitHub's time
-# strings can contain it. This method ensures that a string's trailing 'Z',
-# if present, has been removed.
-function chopz(str::AbstractString)
-    if !(isempty(str)) && last(str) == 'Z'
-        return chop(str)
-    end
-    return str
-end
-
-# Calling `json2canvas(::Type{G<:CanvasObject}, data::Dict)` will parse the given
-# dictionary into the type `G` with the expectation that the fieldnames of
-# `G` are keys of `data`, and the corresponding values can be converted to the
-# given field types.
-@generated function json2canvas(::Type{G}, data::Dict) where {G<:CanvasObject}
-    types = unwrap_union_types.(collect(G.types))
-    fields = fieldnames(G)
-    args = Vector{Expr}(undef, length(fields))
-    for i in eachindex(fields)
-        field, T = fields[i], types[i]
-        key = field == :typ ? "type" : string(field)
-        args[i] = :(extract_nullable(data, $key, $T))
-    end
-    return :(G($(args...))::G)
-end
-#### GitHub.jl ####
+include("canvas_objects.jl")
+include("github.jl")
 
 #####################
 # Exposed endpoints #
 #####################
-function courses(api::CanvasAPI; kwargs...)
-    rs, page_data = paged_request("GET", api, "/api/v1/courses"; kwargs...)
-    cs = Canvas.Course[]
+
+"""
+    courses(; kwargs...) -> Vector{Courses}, page_data
+
+Access the `/api/v1/courses` endpoint.
+"""
+function courses(; api::CanvasAPI=getapi(), kwargs...)
+    rs, page_data = paged_request("GET", "/api/v1/courses"; api=api, kwargs...)
+    cs = Course[]
     for r in rs
-        append!(cs, map(x->Canvas.json2canvas(Canvas.Course, x), JSON.parse(HTTP.payload(r, String))))
+        append!(cs, map(x->json2canvas(Course, x), JSON.parse(HTTP.payload(r, String))))
     end
     return cs, page_data
+end
+
+"""
+    course(c; kwargs...) -> Vector{Courses}, page_data
+
+Access the `/api/v1/courses/:id` endpoint, where `:id`
+is determined by the `c` argument.
+"""
+function course(c; api::CanvasAPI=getapi(), kwargs...)
+    r = request("GET", "/api/v1/courses/$(id(c))"; api=api, kwargs...)
+    c = json2canvas(Course, JSON.parse(HTTP.payload(r, String)))
+    return c
 end
 
 end # module
