@@ -3,7 +3,7 @@ import JSON, OrderedCollections
 # run(Cmd(`git clone https://github.com/instructure/canvas-lms.git .`; dir=git))
 git = "/tmp/jl_NR65ip"
 
-structs = Dict{String,Vector{Tuple{String,String}}}()
+structs = Dict[]
 model_regex = r"#\s*@model\s*(\w+)\n(#\s*{.*#\s*})"s
 
 function jsontype(t)
@@ -15,11 +15,14 @@ function jsontype(t)
         return "Dates.DateTime"
     elseif t == "boolean"
         return "Bool"
+    elseif t == "array"
+        return "Vector"
     else
+        @show t
         error()
     end
 end
-
+io = IOBuffer()
 for (root, dirs, files) in walkdir(joinpath(git, "app", "controllers"))
     for f in files
         endswith(f, ".rb") || continue
@@ -29,19 +32,21 @@ for (root, dirs, files) in walkdir(joinpath(git, "app", "controllers"))
             struct_name = String(m.captures[1])
             @debug "Parsing object '$(struct_name)'..."
             # Strip initial #'s
-            io = IOBuffer()
+            json_io = IOBuffer()
             for line in eachline(IOBuffer(m.captures[2]))
-                println(io, chop(line; head=1, tail=0))
+                println(json_io, chop(line; head=1, tail=0))
             end
-            json = JSON.parse(seekstart(io); dicttype=OrderedCollections.OrderedDict)
+            json = JSON.parse(seekstart(json_io); dicttype=OrderedCollections.OrderedDict)
             if json["id"] != struct_name
-                @warn "Object id mismatch, skipping" json["id"] struct_name
+                @warn "Object id mismatch, skipping" json["id"] struct_name f
+                continue
             end
-            props = json["properties"]
-            for (k, v) in props
-                field_name = replace(k, "-" => "_")
-                field_type = jsontype(v["type"])
-                push!(get(structs, struct_name, ), (field_name))
+            # print to io
+            println(io, "# ", json["id"])
+            println(io, "struct ", json["id"], " <: CanvasObject")
+            for (k, v) in json["properties"]
+                @show v
+                println(io, "    ", replace(k, "-"=>"_"), "::Union{", jsontype(v["type"]), ",Nothing}")
             end
         end
     end
