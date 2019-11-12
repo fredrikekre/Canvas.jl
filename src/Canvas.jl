@@ -57,23 +57,23 @@ function update_headers!(headers, api::CanvasAPI)
 end
 
 function request(method::String, endpoint::String=""; api::CanvasAPI=getapi(),
-                 headers=Dict{String, String}(), kwargs...)
+                 headers=Dict{String, String}(), params=nothing, kwargs...)
     update_headers!(headers, api)
     uri = HTTP.merge(api.uri, path=endpoint)
-    r = HTTP.request(method, uri, headers; kwargs...)
+    r = HTTP.request(method, uri, headers; query=params, kwargs...)
     return r
 end
 
 function paged_request(method::String, endpoint::String=""; api::CanvasAPI=getapi(),
                        headers=Dict{String, String}(), page_limit=typemax(Int),
-                       start_page="", query=nothing, kwargs...)
+                       start_page="", params=nothing, kwargs...)
     update_headers!(headers, api)
     if isempty(start_page) # first request
         uri = HTTP.merge(api.uri, path=endpoint)
-        r = HTTP.request(method, uri, headers; query=query, kwargs...)
+        r = HTTP.request(method, uri, headers; query=params, kwargs...)
     else
         # isempty(endpoint) || throw(ArgumentError("`start_page` kwarg is incompatible with `endpoint` argument"))
-        query === nothing || throw(ArgumentError("`start_page` kwarg is incompatible with `query` kwarg"))
+        params === nothing || throw(ArgumentError("`start_page` kwarg is incompatible with `params` kwarg"))
         r = HTTP.request(method, start_page, headers; kwargs...)
     end
     rs = [r]
@@ -99,6 +99,18 @@ function paged_request(method::String, endpoint::String=""; api::CanvasAPI=getap
     return rs, page_data
 end
 
+function request_to_canvas(@nospecialize(C::Type{<:CanvasObject}), r::HTTP.Response)
+    c = C(JSON.parse(HTTP.payload(r, String)))
+    return c
+end
+function request_to_canvas(@nospecialize(C::Type{<:CanvasObject}), rs::Vector{<:HTTP.Response})
+    cs = C[]
+    for r in rs, c in JSON.parse(HTTP.payload(r, String))
+        push!(cs, C(c))
+    end
+    return cs
+end
+
 # function canvas_get_json(api::CanvasAPI, endpoint=""; kwargs...)
 #     r = canvas_get(api, endpoint; kwargs...)
 #     return JSON.parse(payload)
@@ -118,11 +130,7 @@ Access the `/api/v1/courses` endpoint.
 """
 function courses(; api::CanvasAPI=getapi(), kwargs...)
     rs, page_data = paged_request("GET", "/api/v1/courses"; api=api, kwargs...)
-    cs = Course[]
-    for r in rs
-        append!(cs, map(Course, JSON.parse(HTTP.payload(r, String))))
-    end
-    return cs, page_data
+    return request_to_canvas(Course, rs), page_data
 end
 
 """
@@ -133,8 +141,7 @@ is determined by the `c` argument.
 """
 function course(c; api::CanvasAPI=getapi(), kwargs...)
     r = request("GET", "/api/v1/courses/$(id(c))"; api=api, kwargs...)
-    c = Course(JSON.parse(HTTP.payload(r, String)))
-    return c
+    return request_to_canvas(Course, r)
 end
 
 """
@@ -145,11 +152,7 @@ where `:course_id` is determined by the `c` argument.
 """
 function files(c; api::CanvasAPI=getapi(), kwargs...)
     rs, page_data = paged_request("GET", "/api/v1/courses/$(id(c))/files"; api=api, kwargs...)
-    fs = File[]
-    for r in rs
-        append!(fs, map(File, JSON.parse(HTTP.payload(r, String))))
-    end
-    return fs, page_data
+    return request_to_canvas(File, rs), page_data
 end
 
 """
@@ -160,14 +163,23 @@ where `:course_id` is determined by the `c` argument.
 """
 function file(f; api::CanvasAPI=getapi(), kwargs...)
     r = request("GET", "/api/v1/files/$(id(f))"; api=api, kwargs...)
-    f = File(JSON.parse(HTTP.payload(r, String)))
-    return f
+    return request_to_canvas(File, r)
 end
 
 function download(f::File, path=tempdir(); kwargs...)
     mkpath(path)
     r = HTTP.download(f.url, joinpath(path, f.display_name); kwargs...)
     return r
+end
+
+function announcements(c; api::CanvasAPI=getapi(), query=nothing, kwargs...)
+    query = something(query, Dict("context_codes"=>"course_$(id(c))"))
+    rs, page_data = paged_request("GET", "/api/v1/announcements"; api=api, query=query, kwargs...)
+    return request_to_canvas(DiscussionTopic, rs), page_data
+end
+function create_announcement(c; api::CanvasAPI=getapi(), kwargs...)
+    r = request("POST", "/api/v1/courses/$(id(c))/discussion_topics"; kwargs...)
+    return request_to_canvas(DiscussionTopic, r)
 end
 
 end # module
