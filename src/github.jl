@@ -22,7 +22,7 @@ function extract_nullable(data::Dict, key, ::Type{T}) where {T}
     return nothing
 end
 
-prune_canvas_value(val::T, ::Type{Any}) where {T} = T(val)
+prune_canvas_value(val::T, ::Type{Any}) where {T} = val
 prune_canvas_value(val, ::Type{T}) where {T} = T(val)
 prune_canvas_value(val::AbstractString, ::Type{Dates.DateTime}) = Dates.DateTime(chopz(val))
 

@@ -99,11 +99,19 @@ function paged_request(method::String, endpoint::String=""; api::CanvasAPI=getap
     return rs, page_data
 end
 
-function request_to_canvas(@nospecialize(C::Type{<:CanvasObject}), r::HTTP.Response)
+function request_to_canvas(@nospecialize(C), r::HTTP.Response)
+    @assert C <: CanvasObject
     c = C(JSON.parse(HTTP.payload(r, String)))
     return c
 end
-function request_to_canvas(@nospecialize(C::Type{<:CanvasObject}), rs::Vector{<:HTTP.Response})
+function request_to_canvas(@nospecialize(C::Type{<:Vector}), r::HTTP.Response)
+    C′ = first(C.parameters)
+    @assert C′ <: CanvasObject
+    c = C′[C′(x) for x in JSON.parse(HTTP.payload(r, String))]
+    return c
+end
+function request_to_canvas(@nospecialize(C), rs::Vector{<:HTTP.Response})
+    @assert C <: CanvasObject
     cs = C[]
     for r in rs, c in JSON.parse(HTTP.payload(r, String))
         push!(cs, C(c))
@@ -178,8 +186,21 @@ function announcements(c; api::CanvasAPI=getapi(), query=nothing, kwargs...)
     return request_to_canvas(DiscussionTopic, rs), page_data
 end
 function create_announcement(c; api::CanvasAPI=getapi(), kwargs...)
-    r = request("POST", "/api/v1/courses/$(id(c))/discussion_topics"; kwargs...)
+    r = request("POST", "/api/v1/courses/$(id(c))/discussion_topics"; api=api, kwargs...)
     return request_to_canvas(DiscussionTopic, r)
+end
+
+function create_conversation(c; api::CanvasAPI=getapi(), params::Dict, kwargs...)
+    if !haskey(params, "recipients[]")
+        params = Dict("recipients[]"=>["$(id(c))"], params...)
+    end
+    r = request("POST", "/api/v1/conversations"; api=api, params=params, kwargs...)
+    return request_to_canvas(Vector{Conversation}, r)
+end
+
+function whoami(; api::CanvasAPI=getapi(), kwargs...)
+    r = request("GET", "/api/v1/users/self"; api=api, kwargs...)
+    return request_to_canvas(User, r)
 end
 
 end # module
