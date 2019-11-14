@@ -879,6 +879,35 @@ struct Module <: CanvasObject
 end
 Module(data::Dict) = json2canvas(Module, data)
 
+# ConversationParticipant
+struct ConversationParticipant <: CanvasObject
+    # The user ID for the participant.
+    id::Union{Int,Nothing}
+    # A short name the user has selected, for use in conversations or other less formal
+    # places through the site.
+    name::Union{String,Nothing}
+    # The full name of the user.
+    full_name::Union{String,Nothing}
+    # If requested, this field will be included and contain a url to retrieve the user's
+    # avatar.
+    avatar_url::Union{String,Nothing}
+end
+ConversationParticipant(data::Dict) = json2canvas(ConversationParticipant, data)
+
+# Message
+struct Message <: CanvasObject
+    id::Union{Int,Nothing}
+    author_id::Union{Int,Nothing}
+    body::Union{String,Nothing}
+    created_at::Union{Dates.DateTime,Nothing}
+    participating_user_ids::Union{Vector,Nothing}
+    media_comment::Union{String,Nothing}
+    attachments::Union{Vector,Nothing}
+    generated::Union{Bool,Nothing}
+    forwarded_messages::Union{Vector{Message},Nothing}
+end
+Message(data::Dict) = json2canvas(Message, data)
+
 # Conversation
 struct Conversation <: CanvasObject
     # the unique identifier for the conversation.
@@ -914,7 +943,7 @@ struct Conversation <: CanvasObject
     # depending on audience).
     avatar_url::Union{String,Nothing}
     # Array of users participating in the conversation. Includes current user.
-    participants::Union{Vector,Nothing}
+    participants::Union{Vector{ConversationParticipant},Nothing}
     # indicates whether the conversation is visible under the current scope and filter.
     # This attribute is always true in the index API response, and is primarily useful
     # in create/update responses so that you can know if the record should be displayed
@@ -923,23 +952,9 @@ struct Conversation <: CanvasObject
     visible::Union{Bool,Nothing}
     # Name of the course or group in which the conversation is occurring.
     context_name::Union{String,Nothing}
+    messages::Union{Vector{Message},Nothing}
 end
 Conversation(data::Dict) = json2canvas(Conversation, data)
-
-# ConversationParticipant
-struct ConversationParticipant <: CanvasObject
-    # The user ID for the participant.
-    id::Union{Int,Nothing}
-    # A short name the user has selected, for use in conversations or other less formal
-    # places through the site.
-    name::Union{String,Nothing}
-    # The full name of the user.
-    full_name::Union{String,Nothing}
-    # If requested, this field will be included and contain a url to retrieve the user's
-    # avatar.
-    avatar_url::Union{String,Nothing}
-end
-ConversationParticipant(data::Dict) = json2canvas(ConversationParticipant, data)
 
 # CourseEventLink
 struct CourseEventLink <: CanvasObject

@@ -208,4 +208,15 @@ function user(u; api::CanvasAPI=getapi(), kwargs...)
     return request_to_canvas(User, r)
 end
 
+function conversations(; api::CanvasAPI=getapi(), kwargs...)
+    rs, page_data = paged_request("GET", "/api/v1/conversations"; api=api, kwargs...)
+    return request_to_canvas(Conversation, rs), page_data
+end
+
+function conversation(c; api::CanvasAPI=getapi(), kwargs...)
+    r = request("GET", "/api/v1/conversations/$(id(c))"; api=api, kwargs...)
+    return request_to_canvas(Conversation, r)
+end
+
+
 end # module
