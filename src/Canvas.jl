@@ -203,4 +203,9 @@ function whoami(; api::CanvasAPI=getapi(), kwargs...)
     return request_to_canvas(User, r)
 end
 
+function user(u; api::CanvasAPI=getapi(), kwargs...)
+    r = request("GET", "/api/v1/users/$(id(u))"; api=api, kwargs...)
+    return request_to_canvas(User, r)
+end
+
 end # module
