@@ -46,19 +46,24 @@ end
 ###############
 
 # Set Authorization and User-Agent
-function update_headers!(headers, api::CanvasAPI)
-    if !haskey(headers, "Authorization") && api.auth !== nothing
+function canvas_headers(headers=nothing, api=nothing)
+    if headers === nothing
+        headers = Dict{String,String}()
+    else
+        headers = Dict{String,String}(h for h in headers)
+    end
+    if api !== nothing && !haskey(headers, "Authorization") && api.auth !== nothing
         headers["Authorization"] = "Bearer $(String(copy(api.auth.token.data)))"
     end
     if !haskey(headers, "User-Agent")
-        headers["User-Agent"] = "Canvas.jl"
+        headers["User-Agent"] = "Canvas.jl" # Always overwrite this?
     end
     return headers
 end
 
 function request(method::String, endpoint::String=""; api::CanvasAPI=getapi(),
-                 headers=Dict{String, String}(), params=nothing, kwargs...)
-    update_headers!(headers, api)
+                 headers=nothing, params=nothing, kwargs...)
+    headers = canvas_headers(headers, api)
     uri = HTTP.merge(api.uri, path=endpoint)
     r = HTTP.request(method, uri, headers; query=params, kwargs...)
     json = JSON.parse(HTTP.payload(r, String))
@@ -66,9 +71,9 @@ function request(method::String, endpoint::String=""; api::CanvasAPI=getapi(),
 end
 
 function paged_request(method::String, endpoint::String=""; api::CanvasAPI=getapi(),
-                       headers=Dict{String, String}(), page_limit=typemax(Int),
+                       headers=nothing, page_limit=typemax(Int),
                        start_page="", params=nothing, kwargs...)
-    update_headers!(headers, api)
+    headers = canvas_headers(headers, api)
     if isempty(start_page) # first request
         uri = HTTP.merge(api.uri, path=endpoint)
         r = HTTP.request(method, uri, headers; query=params, kwargs...)
@@ -196,31 +201,54 @@ function conversation(c; api::CanvasAPI=getapi(), kwargs...)
     return Conversation(json)
 end
 
-function upload_file(c, file; api::CanvasAPI=getapi(), params::Dict=Dict(), headers=Dict{String, String}(), kwargs...)
+function upload_file(c, file; api::CanvasAPI=getapi(), params::Dict=Dict(), kwargs...)
+    params = convert(Dict{String,Any}, params)
     get!(params, "name", basename(file))
     get!(params, "size", stat(file).size)
-    # update_headers!(headers, api)
-    # uri = HTTP.merge(api.uri, path="/api/v1/courses/$(id(c))/files")
-    # r = HTTP.request("POST", uri, headers; query=params, kwargs...)
 
-    # Step 1: ...
+    # Step 1: Telling Canvas about the file upload and getting a token
     json = request("POST", "/api/v1/courses/$(id(c))/files"; api=api, params=params, kwargs...)
-    # Step 2: ...
+
+    # Step 2: Upload the file data to the URL given in the previous response
     uri = HTTP.URI(json["upload_url"])
-    io = open(file)
-    multipart = HTTP.Multipart(json["upload_params"]["filename"], io, json["upload_params"]["content_type"])
-    # query = join((uri.query, HTTP.escapeuri(json["upload_params"]), HTTP.escapeuri("file"=>"@$(file)")), "&")
-    # uri = merge(uri; )
-    json["upload_params"]["file"] = multipart
-    form = HTTP.Form(json["upload_params"])
-    req = HTTP.request("POST", uri, Dict("User-Agent"=>"Canvas.jl"), body=json["upload_params"])
+    req = open(file, "r") do io
+        # TODO: May need OrderedDict for body since file should always be last...
+        body = json["upload_params"]
+        body["file"] = io
+        form = HTTP.Form(body)
+        headers = canvas_headers(
+            Dict("Content-Type"=>"multipart/form-data; boundary=$(form.boundary)")
+        )
+        return HTTP.request("POST", uri, headers, form)
+    end
+
+    # Step 3: Confirm the upload's success
+    if HTTP.isredirect(req)
+        # 3XX Redirect
+        loc = HTTP.header(req, "Location")
+        json = request("GET", loc; api=api) # Should be authenticated
+    else # req.status == 201
+        # 201 Created
+        json = JSON.parse(HTTP.payload(req, String))
+    end
+    return File(json)
 end
 
-# function request(method::String, endpoint::String=""; api::CanvasAPI=getapi(),
-#                  headers=Dict{String, String}(), params=nothing, kwargs...)
-#     json = JSON.parse(HTTP.payload(r, String))
-#     return json
-# end
 
+function download_file(f::File, local_path=mktempdir(); update_period=Inf, kwargs...)
+    if isdir(local_path) # existing directory, append filename
+        local_path = joinpath(local_path, f.filename)
+    elseif !isdir(dirname(local_path)) # a filepath, make sure directory exist
+        error("destination directory does not exist; $(dirname(local_path))")
+    end
+    headers = canvas_headers()
+    r = HTTP.download(f.url, local_path, headers; update_period=update_period, kwargs...)
+    return r
+end
+
+function delete_file(f::File; api=api::CanvasAPI=getapi(), kwargs...)
+    json = request("DELETE", "/api/v1/files/$(id(f))"; api=api, kwargs...)
+    return File(json)
+end
 
 end # module

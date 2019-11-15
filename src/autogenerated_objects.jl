@@ -1435,6 +1435,10 @@ struct File <: CanvasObject
     # optional: url to the document preview. This url is specific to the user making the
     # api call. Only included in submission endpoints.
     preview_url::Union{String,Nothing}
+    # The following fields are specific to file upload
+    location::Union{String,Nothing}
+    instfs_uuid::Union{String,Nothing}
+    upload_status::Union{String,Nothing}
 end
 File(data::Dict) = json2canvas(File, data)
 
