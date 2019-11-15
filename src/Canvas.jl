@@ -201,10 +201,12 @@ function conversation(c; api::CanvasAPI=getapi(), kwargs...)
     return Conversation(json)
 end
 
-function upload_file(c, file; api::CanvasAPI=getapi(), params::Dict=Dict(), kwargs...)
-    params = convert(Dict{String,Any}, params)
-    get!(params, "name", basename(file))
-    get!(params, "size", stat(file).size)
+function upload_file(c, file; api::CanvasAPI=getapi(), params::Dict=Dict{String,Any}(), kwargs...)
+    params = Dict{String,Any}(
+        "name"=>basename(file),
+        "size"=>stat(file).size,
+        params...
+    )
 
     # Step 1: Telling Canvas about the file upload and getting a token
     json = request("POST", "/api/v1/courses/$(id(c))/files"; api=api, params=params, kwargs...)
