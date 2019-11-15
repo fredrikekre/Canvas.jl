@@ -196,9 +196,31 @@ function conversation(c; api::CanvasAPI=getapi(), kwargs...)
     return Conversation(json)
 end
 
-function upload_file(f::Folder; api::CanvasAPI=getapi(), kwargs...)
+function upload_file(c, file; api::CanvasAPI=getapi(), params::Dict=Dict(), headers=Dict{String, String}(), kwargs...)
+    get!(params, "name", basename(file))
+    get!(params, "size", stat(file).size)
+    # update_headers!(headers, api)
+    # uri = HTTP.merge(api.uri, path="/api/v1/courses/$(id(c))/files")
+    # r = HTTP.request("POST", uri, headers; query=params, kwargs...)
 
+    # Step 1: ...
+    json = request("POST", "/api/v1/courses/$(id(c))/files"; api=api, params=params, kwargs...)
+    # Step 2: ...
+    uri = HTTP.URI(json["upload_url"])
+    io = open(file)
+    multipart = HTTP.Multipart(json["upload_params"]["filename"], io, json["upload_params"]["content_type"])
+    # query = join((uri.query, HTTP.escapeuri(json["upload_params"]), HTTP.escapeuri("file"=>"@$(file)")), "&")
+    # uri = merge(uri; )
+    json["upload_params"]["file"] = multipart
+    form = HTTP.Form(json["upload_params"])
+    req = HTTP.request("POST", uri, Dict("User-Agent"=>"Canvas.jl"), body=json["upload_params"])
 end
+
+# function request(method::String, endpoint::String=""; api::CanvasAPI=getapi(),
+#                  headers=Dict{String, String}(), params=nothing, kwargs...)
+#     json = JSON.parse(HTTP.payload(r, String))
+#     return json
+# end
 
 
 end # module
