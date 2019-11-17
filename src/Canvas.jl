@@ -214,13 +214,10 @@ function upload_file(c, file; api::CanvasAPI=getapi(), params::Dict=Dict{String,
     # Step 2: Upload the file data to the URL given in the previous response
     uri = HTTP.URI(json["upload_url"])
     req = open(file, "r") do io
-        # TODO: May need OrderedDict for body since file should always be last...
-        body = json["upload_params"]
-        body["file"] = io
+        body = collect(json["upload_params"])
+        push!(body, "file"=>io) # file must be last argument
         form = HTTP.Form(body)
-        headers = canvas_headers(
-            Dict("Content-Type"=>"multipart/form-data; boundary=$(form.boundary)")
-        )
+        headers = canvas_headers()
         return HTTP.request("POST", uri, headers, form)
     end
 
