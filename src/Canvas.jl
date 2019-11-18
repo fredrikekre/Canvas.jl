@@ -56,14 +56,14 @@ end
 ###############
 
 # Set Authorization and User-Agent
-function canvas_headers(headers=nothing, api=nothing)
+function canvas_headers(headers=nothing; auth=nothing)
     if headers === nothing
         headers = Dict{String,String}()
     else
         headers = Dict{String,String}(h for h in headers)
     end
-    if api !== nothing && !haskey(headers, "Authorization") && api.auth !== nothing
-        headers["Authorization"] = "Bearer $(String(copy(api.auth.token.data)))"
+    if isa(auth, OAuth2) && !haskey(headers, "Authorization")
+        headers["Authorization"] = "Bearer $(String(copy(auth.token.data)))"
     end
     if !haskey(headers, "User-Agent")
         headers["User-Agent"] = "Canvas.jl" # Always overwrite this?
@@ -73,7 +73,7 @@ end
 
 function request(method::String, endpoint::String=""; api::CanvasAPI=getapi(),
                  headers=nothing, params=nothing, kwargs...)
-    headers = canvas_headers(headers, api)
+    headers = canvas_headers(headers; auth=api.auth)
     uri = HTTP.merge(api.uri, path=endpoint)
     r = HTTP.request(method, uri, headers; query=params, kwargs...)
     json = JSON.parse(HTTP.payload(r, String))
@@ -83,7 +83,7 @@ end
 function paged_request(method::String, endpoint::String=""; api::CanvasAPI=getapi(),
                        headers=nothing, page_limit=typemax(Int),
                        start_page="", params=nothing, kwargs...)
-    headers = canvas_headers(headers, api)
+    headers = canvas_headers(headers; auth=api.auth)
     if isempty(start_page) # first request
         uri = HTTP.merge(api.uri, path=endpoint)
         r = HTTP.request(method, uri, headers; query=params, kwargs...)
@@ -227,7 +227,7 @@ function upload_file(c, file; api::CanvasAPI=getapi(), params::Dict=Dict{String,
         body = collect(json["upload_params"])
         push!(body, "file"=>io) # file must be last argument
         form = HTTP.Form(body)
-        headers = canvas_headers()
+        headers = canvas_headers(; auth=nothing) # should not be authenticated
         return HTTP.request("POST", uri, headers, form)
     end
 
