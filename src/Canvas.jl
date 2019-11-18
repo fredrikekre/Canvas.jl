@@ -12,23 +12,22 @@ import HTTP, JSON, Dates
 ####################
 mutable struct OAuth2
     token::Base.SecretBuffer
-    function OAuth2(sb::Base.SecretBuffer)
-        finalizer(x -> Base.shred!(x), sb)
-        return new(sb)
+    function OAuth2(auth::Base.SecretBuffer)
+        finalizer(x -> Base.shred!(x), auth)
+        return new(auth)
     end
+    OAuth2(auth::String) = OAuth2(Base.SecretBuffer(auth))
+    OAuth2(auth::OAuth2) = auth
 end
-OAuth2(str::String) = OAuth2(Base.SecretBuffer(str))
-OAuth2() = OAuth2(ENV["CANVAS_TOKEN"])
 
 ##################
 ## API endpoint ##
 ##################
 struct CanvasAPI
     uri::HTTP.URI
-    auth::Union{OAuth2,Nothing}
+    auth::OAuth2
+    CanvasAPI(uri, auth) = new(HTTP.URI(uri), OAuth2(auth))
 end
-CanvasAPI(uri::HTTP.URI; auth::Union{OAuth2,Nothing}=nothing) = CanvasAPI(uri, auth)
-CanvasAPI(str::String; auth::Union{OAuth2,Nothing}=nothing) = CanvasAPI(HTTP.URI(str), auth)
 
 # Default API
 const API = Ref{CanvasAPI}()
@@ -38,6 +37,17 @@ function getapi()
         return API[]
     else
         throw(ArgumentError("no default CanvasAPI set; see `Canvas.setapi!`."))
+    end
+end
+
+function __init__()
+    url = get(ENV, "CANVAS_URL", nothing)
+    auth = get(ENV, "CANVAS_TOKEN", nothing)
+    if url !== nothing && auth !== nothing
+        try
+            setapi!(Canvas.CanvasAPI(url, auth))
+        catch
+        end
     end
 end
 
