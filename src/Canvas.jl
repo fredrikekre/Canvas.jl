@@ -73,16 +73,68 @@ function canvas_headers(headers=nothing; auth=nothing)
     return headers
 end
 
-function request(method::String, endpoint::String=""; api::CanvasAPI=getapi(),
+"""
+    Canvas.request(method, endpoint; kwargs...) -> JSON
+
+General method for HTTP requests to `endpoint`.
+Return the resulting JSON structure.
+
+**Keyword arguments:**
+
+ - `api`: the Canvas API with authentication;
+ - `params`: dictionary with request parameters.
+
+Remaining keyword arguments are passed to
+[`HTTP.request`](https://juliaweb.github.io/HTTP.jl/stable/public_interface/#Requests-1).
+
+**Examples**
+```julia
+# Get a single course
+Canvas.request("GET", "/api/v1/courses/:course_id")
+
+# Post an announcement
+params = Dict(
+    "title" => "Hello there!",
+    "message" => "General Kenobi!",
+    "is_announcement" => true,
+)
+Canvas.request("POST", "/api/v1/courses/:course_id/discussion_topics"; params=params)
+```
+"""
+function request(method::String, endpoint::String=""; kwargs...)
+    r = _request(method, endpoint; kwargs...)
+    json = JSON.parse(IOBuffer(HTTP.payload(r)))
+    return json
+end
+# Internal request method, returning a HTTP.Response
+function _request(method::String, endpoint::String=""; api::CanvasAPI=getapi(),
                  headers=nothing, params=nothing, kwargs...)
     headers = canvas_headers(headers; auth=api.auth)
     uri = HTTP.merge(api.uri, path=endpoint)
     r = HTTP.request(method, uri, headers; query=params, kwargs...)
-    json = JSON.parse(HTTP.payload(r, String))
-    return json
+    return r
 end
 
-function paged_request(method::String, endpoint::String=""; api::CanvasAPI=getapi(),
+"""
+    Canvas.paged_request(method, endpoint; kwargs...)
+
+General method for HTTP requests to `endpoint`.
+Return the resulting JSON structure and a dictionary
+with page data with links.
+
+# Examples
+```julia
+Canvas.request("GET", "/api/v1/courses")
+```
+"""
+function paged_request(method::String, endpoint::String=""; kwargs...)
+    rs, page_data = _paged_request(method, endpoint; kwargs...)
+    # Assume we get an JSON array in each request
+    json = mapreduce(r->JSON.parse(IOBuffer(HTTP.payload(r))), append!, rs; init=Dict{String,Any}[])
+    return json, page_data
+end
+# Internal request method for pagination, returning Vector{HTTP.Response} and page_data
+function _paged_request(method::String, endpoint::String=""; api::CanvasAPI=getapi(),
                        headers=nothing, page_limit=typemax(Int),
                        start_page="", params=nothing, kwargs...)
     headers = canvas_headers(headers; auth=api.auth)
@@ -94,7 +146,7 @@ function paged_request(method::String, endpoint::String=""; api::CanvasAPI=getap
         params === nothing || throw(ArgumentError("`start_page` kwarg is incompatible with `params` kwarg"))
         r = HTTP.request(method, start_page, headers; kwargs...)
     end
-    json = JSON.parse(HTTP.payload(r, String))
+    rs = [r]
     page_data = Dict{String, String}()
     if HTTP.hasheader(r, "Link")
         page_count = 1
@@ -103,8 +155,7 @@ function paged_request(method::String, endpoint::String=""; api::CanvasAPI=getap
             idx = findfirst(x->occursin("rel=\"next\"", x), links)
             idx === nothing && break
             r = HTTP.request(method, match(r"<(.*)>", links[idx]).captures[1], headers; kwargs...)
-            json′ = JSON.parse(HTTP.payload(r, String))
-            append!(json, json′)
+            push!(rs, r)
             page_count += 1
         end
         links = split(HTTP.header(r, "Link"), ",")
@@ -115,7 +166,7 @@ function paged_request(method::String, endpoint::String=""; api::CanvasAPI=getap
             end
         end
     end
-    return json, page_data
+    return rs, page_data
 end
 
 include("canvas_objects.jl")
