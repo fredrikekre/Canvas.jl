@@ -47,6 +47,8 @@ function __init__()
         try
             setapi!(Canvas.CanvasAPI(url, auth))
         catch
+            @warn "Both ENV[\"CANVAS_URL\"] and ENV[\"CANVAS_TOKEN\"] found " *
+                  "but did not manage to initialize the default API."
         end
     end
 end
