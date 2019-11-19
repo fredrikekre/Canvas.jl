@@ -36,7 +36,17 @@ end
 # JSON parsing #
 ################
 function json2canvas(::Type{CO}, data::AbstractDict{T}) where {CO<:CanvasObject,T}
-    CO(((v = get(data, T(x), nothing); v === nothing ? nothing : convert′(fieldtype(CO, x), v)) for x in fieldnames(CO))...)
+    # Make sure the struct does not miss any fields
+    @assert all(k->Symbol(k) ∈ fieldnames(CO), keys(data))
+    CO((begin
+            v = get(data, T(x), nothing)
+            if v === nothing
+                nothing
+            else
+                convert′(fieldtype(CO, x), v)
+            end
+        end
+        for x in fieldnames(CO))...)
 end
 
 convert′(::Type{T}, val::T) where T = val
