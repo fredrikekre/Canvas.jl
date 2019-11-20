@@ -35,21 +35,19 @@ setapi!(api::CanvasAPI) = API[] = api
 function getapi()
     if isassigned(API)
         return API[]
-    else
-        throw(ArgumentError("no default CanvasAPI set; see `Canvas.setapi!`."))
-    end
-end
-
-function __init__()
-    url = get(ENV, "CANVAS_URL", nothing)
-    auth = get(ENV, "CANVAS_TOKEN", nothing)
-    if url !== nothing && auth !== nothing
-        try
-            setapi!(Canvas.CanvasAPI(url, auth))
-        catch
-            @warn "Both ENV[\"CANVAS_URL\"] and ENV[\"CANVAS_TOKEN\"] found " *
-                  "but did not manage to initialize the default API."
+    else # try to set
+        url = get(ENV, "CANVAS_URL", nothing)
+        auth = get(ENV, "CANVAS_TOKEN", nothing)
+        if url !== nothing && auth !== nothing
+            try
+                setapi!(Canvas.CanvasAPI(url, auth))
+                return getapi()
+            catch
+                @warn "Both ENV[\"CANVAS_URL\"] and ENV[\"CANVAS_TOKEN\"] found " *
+                      "but did not manage to initialize the default API."
+            end
         end
+        throw(ArgumentError("no default CanvasAPI set"))
     end
 end
 
