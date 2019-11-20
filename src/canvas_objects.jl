@@ -3,7 +3,7 @@
 ##################
 abstract type CanvasObject end
 
-id(x) = x
+id(x::Int) = x
 id(x::CanvasObject) = x.id
 namefield(x) = nothing
 
