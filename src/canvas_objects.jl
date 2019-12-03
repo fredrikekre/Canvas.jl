@@ -13,6 +13,7 @@ pid(x::Course) = "/courses/$(id(x))"
 pid(x::Group) = "/groups/$(id(x))"
 pid(x::File) = "/files/$(id(x))"
 pid(x::Folder) = "/folders/$(id(x))"
+pid(x::Assignment) = "/assignments/$(id(x))"
 
 namefield(x) = nothing
 

@@ -275,7 +275,7 @@ struct AssignmentOverride <: CanvasObject
     # the overridden due at (present if due_at is overridden)
     due_at::Union{Dates.DateTime,Nothing}
     # the overridden all day flag (present if due_at is overridden)
-    all_day::Union{Int,Nothing}
+    all_day::Union{Bool,Nothing} # TODO: report canvas bug
     # the overridden all day date (present if due_at is overridden)
     all_day_date::Union{Dates.DateTime,Nothing}
     # the overridden unlock at (present if unlock_at is overridden)
@@ -2809,13 +2809,13 @@ struct Assignment <: CanvasObject
     # (optional, Third Party unique identifier for Assignment)
     integration_id::Union{String,Nothing}
     # (optional, Third Party integration data for assignment)
-    integration_data::Union{String,Nothing}
+    integration_data::Union{Any,Nothing} # TODO: Report bug to Canvas
     # For courses using Old Gradebook, indicates whether the assignment is muted. For courses
     # using New Gradebook, true if the assignment has any unposted submissions, otherwise
     # false. To see the posted status of submissions, check the 'posted_attribute' on Submission.
     muted::Union{Bool,Nothing}
     # the maximum points possible for the assignment
-    points_possible::Union{Int,Nothing}
+    points_possible::Union{Number,Nothing} # TODO: Report this ???
     # the types of submissions allowed for this assignment list containing one or more
     # of the following: 'discussion_topic', 'online_quiz', 'on_paper', 'none', 'external_tool',
     # 'online_text_entry', 'online_url', 'online_upload' 'media_recording'
