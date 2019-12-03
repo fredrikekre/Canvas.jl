@@ -299,7 +299,7 @@ end
 **Canvas API documentation:**
 [*Get uploaded media folder for user*](https://canvas.instructure.com/doc/api/files#method.folders.media_folder)
 """
-function copy_folder(co::Union{Course,Group}; kwargs...)
+function media_folder(co::Union{Course,Group}; kwargs...)
     json = request("GET", "/api/v1$(pid(co))/folders/media"; kwargs...)
     return Folder(json)
 end

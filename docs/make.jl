@@ -10,6 +10,9 @@ makedocs(
     sitename = "Canvas.jl",
     pages = Any[
         "index.md",
+        "assignments.md",
+        "courses.md",
+        "files.md",
     ]
 )
 

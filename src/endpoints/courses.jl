@@ -148,14 +148,14 @@ function todo(course::Course; kwargs...)
 end
 
 """
-    Canvas.delete(course::Course; kwargs...) -> Dict
+    Canvas.delete_course(course::Course; kwargs...) -> Dict
 
 **Request endpoint:** `DELETE /api/v1/courses/:id`
 
 **Canvas API documentation:**
 [Delete/Conclude a course](https://canvas.instructure.com/doc/api/courses#method.courses.destroy)
 """
-function delete(course::Course; kwargs...)
+function delete_course(course::Course; kwargs...)
     json = request("DELETE", "/api/v1/courses/$(id(course))"; kwargs...)
     return json
 end
