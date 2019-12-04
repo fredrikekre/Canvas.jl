@@ -175,9 +175,10 @@ include("canvas_objects.jl")
 #####################
 # Exposed endpoints #
 #####################
+include("endpoints/assignments.jl")
 include("endpoints/courses.jl")
 include("endpoints/files.jl")
-include("endpoints/assignments.jl")
+include("endpoints/submissions.jl")
 
 function download(f::File, path=tempdir(); kwargs...)
     mkpath(path)

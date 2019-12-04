@@ -2632,14 +2632,61 @@ struct SisImportData <: CanvasObject
 end
 SisImportData(data::Dict) = json2canvas(SisImportData, data)
 
+# User
+struct User <: CanvasObject
+    # The ID of the user.
+    id::Union{Int,Nothing}
+    # The name of the user.
+    name::Union{String,Nothing}
+    # The name of the user that is should be used for sorting groups of users, such as
+    # in the gradebook.
+    sortable_name::Union{String,Nothing}
+    # A short name the user has selected, for use in conversations or other less formal
+    # places through the site.
+    short_name::Union{String,Nothing}
+    # The SIS ID associated with the user. This field is only included if the user came
+    # from a SIS import and has permissions to view SIS information.
+    sis_user_id::Union{String,Nothing}
+    # The id of the SIS import. This field is only included if the user came from a SIS
+    # import and has permissions to manage SIS information.
+    sis_import_id::Union{Int,Nothing}
+    # The integration_id associated with the user. This field is only included if the user
+    # came from a SIS import and has permissions to view SIS information.
+    integration_id::Union{String,Nothing}
+    # The unique login id for the user. This is what the user uses to log in to Canvas.
+    login_id::Union{String,Nothing}
+    # If avatars are enabled, this field will be included and contain a url to retrieve
+    # the user's avatar.
+    avatar_url::Union{String,Nothing}
+    # Optional: This field can be requested with certain API calls, and will return a list
+    # of the users active enrollments. See the List enrollments API for more details about
+    # the format of these records.
+    enrollments::Union{Vector,Nothing}
+    # Optional: This field can be requested with certain API calls, and will return the
+    # users primary email address.
+    email::Union{String,Nothing}
+    # Optional: This field can be requested with certain API calls, and will return the
+    # users locale in RFC 5646 format.
+    locale::Union{String,Nothing}
+    # Optional: This field is only returned in certain API calls, and will return a timestamp
+    # representing the last time the user logged in to canvas.
+    last_login::Union{String,Nothing}
+    # Optional: This field is only returned in certain API calls, and will return the IANA
+    # time zone name of the user's preferred timezone.
+    time_zone::Union{String,Nothing}
+    # Optional: The user's bio.
+    bio::Union{String,Nothing}
+end
+User(data::Dict) = json2canvas(User, data)
+
 # Submission
 struct Submission <: CanvasObject
     # The submission's assignment id
     assignment_id::Union{Int,Nothing}
     # The submission's assignment (see the assignments API) (optional)
-    assignment::Union{String,Nothing}
+    # assignment::Union{Assignment,Nothing} # TODO: Hmmmm
     # The submission's course (see the course API) (optional)
-    course::Union{String,Nothing}
+    course::Union{Course,Nothing}
     # This is the submission attempt number.
     attempt::Union{Int,Nothing}
     # The content of the submission, if it was submitted directly in a text field.
@@ -2675,7 +2722,7 @@ struct Submission <: CanvasObject
     grader_id::Union{Int,Nothing}
     graded_at::Union{Dates.DateTime,Nothing}
     # The submissions user (see user API) (optional)
-    user::Union{String,Nothing}
+    user::Union{User,Nothing}
     # Whether the submission was made after the applicable due date
     late::Union{Bool,Nothing}
     # Whether the assignment is visible to the user who submitted the assignment. Submissions
@@ -2696,7 +2743,7 @@ struct Submission <: CanvasObject
     # for a late or missing assignment.
     points_deducted::Union{Float64,Nothing}
     # The amount of time, in seconds, that an submission is late by.
-    seconds_late::Union{Float64,Nothing}
+    seconds_late::Union{Int64,Nothing} # TODO: Report this??
     # The current state of the submission
     workflow_state::Union{String,Nothing}
     # Extra submission attempts allowed for the given user and assignment.
@@ -2706,6 +2753,11 @@ struct Submission <: CanvasObject
     anonymous_id::Union{String,Nothing}
     # The date this submission was posted to the student, or nil if it has not been posted.
     posted_at::Union{Dates.DateTime,Nothing}
+    ########################
+    ## Fields added by me ##
+    ########################
+    # attachments::Union{Vector,Nothing} # TODO: Can this be other than File?? Or Vector{File} ??
+    attachments::Union{Vector{File},Nothing} # TODO: Can this be other than File?? Or Vector{File} ??
 end
 Submission(data::Dict) = json2canvas(Submission, data)
 
@@ -3078,53 +3130,6 @@ struct AnonymousUserDisplay <: CanvasObject
     avatar_image_url::Union{String,Nothing}
 end
 AnonymousUserDisplay(data::Dict) = json2canvas(AnonymousUserDisplay, data)
-
-# User
-struct User <: CanvasObject
-    # The ID of the user.
-    id::Union{Int,Nothing}
-    # The name of the user.
-    name::Union{String,Nothing}
-    # The name of the user that is should be used for sorting groups of users, such as
-    # in the gradebook.
-    sortable_name::Union{String,Nothing}
-    # A short name the user has selected, for use in conversations or other less formal
-    # places through the site.
-    short_name::Union{String,Nothing}
-    # The SIS ID associated with the user. This field is only included if the user came
-    # from a SIS import and has permissions to view SIS information.
-    sis_user_id::Union{String,Nothing}
-    # The id of the SIS import. This field is only included if the user came from a SIS
-    # import and has permissions to manage SIS information.
-    sis_import_id::Union{Int,Nothing}
-    # The integration_id associated with the user. This field is only included if the user
-    # came from a SIS import and has permissions to view SIS information.
-    integration_id::Union{String,Nothing}
-    # The unique login id for the user. This is what the user uses to log in to Canvas.
-    login_id::Union{String,Nothing}
-    # If avatars are enabled, this field will be included and contain a url to retrieve
-    # the user's avatar.
-    avatar_url::Union{String,Nothing}
-    # Optional: This field can be requested with certain API calls, and will return a list
-    # of the users active enrollments. See the List enrollments API for more details about
-    # the format of these records.
-    enrollments::Union{Vector,Nothing}
-    # Optional: This field can be requested with certain API calls, and will return the
-    # users primary email address.
-    email::Union{String,Nothing}
-    # Optional: This field can be requested with certain API calls, and will return the
-    # users locale in RFC 5646 format.
-    locale::Union{String,Nothing}
-    # Optional: This field is only returned in certain API calls, and will return a timestamp
-    # representing the last time the user logged in to canvas.
-    last_login::Union{String,Nothing}
-    # Optional: This field is only returned in certain API calls, and will return the IANA
-    # time zone name of the user's preferred timezone.
-    time_zone::Union{String,Nothing}
-    # Optional: The user's bio.
-    bio::Union{String,Nothing}
-end
-User(data::Dict) = json2canvas(User, data)
 
 # OutcomeImport
 struct OutcomeImport <: CanvasObject

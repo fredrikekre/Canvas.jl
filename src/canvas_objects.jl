@@ -69,6 +69,9 @@ convert′(::Type{T}, val) where T = error("T=$T, val=$val")
 function convert′(::Type{Union{CO,Nothing}}, val) where CO <: CanvasObject
     return CO(val)
 end
+function convert′(::Type{Union{Vector{CO},Nothing}}, val) where CO <: CanvasObject
+    return CO.(val)
+end
 function convert′(::Type{Union{Dates.DateTime,Nothing}}, val)
     if !(isempty(val)) && last(val) == 'Z'
         val = String(chop(val))
