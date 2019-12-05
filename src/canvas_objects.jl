@@ -86,9 +86,9 @@ end
 function convert′(::Type{Union{Vector{CO},Nothing}}, val) where CO <: CanvasObject
     return CO.(val)
 end
-function convert′(::Type{Union{Dates.DateTime,Nothing}}, val)
-    if !(isempty(val)) && last(val) == 'Z'
-        val = String(chop(val))
-    end
-    return convert(Union{Dates.DateTime,Nothing}, Dates.DateTime(val))
+function convert′(::Type{Union{TimeZones.ZonedDateTime,Nothing}}, val)
+    df = TimeZones.dateformat"yyyy-mm-ddTHH:MM:SSz"
+    zdt = parse(TimeZones.ZonedDateTime, val, df)
+    zdt′ = TimeZones.astimezone(zdt, TimeZones.localzone())
+    return convert(Union{TimeZones.ZonedDateTime,Nothing}, zdt′)
 end

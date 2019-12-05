@@ -33,7 +33,7 @@ function jsontype(v)
         elseif t == "number"
             return "Float64"
         elseif t == "datetime"
-            return "Dates.DateTime"
+            return "TimeZones.ZonedDateTime"
         elseif t == "boolean"
             return "Bool"
         elseif t == "array"

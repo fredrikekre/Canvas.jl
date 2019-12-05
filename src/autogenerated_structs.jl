@@ -61,8 +61,8 @@ CalendarLink(data::AbstractDict) = json2canvas(CalendarLink, data)
 struct Term <: CanvasObject
     id::Union{Int,Nothing}
     name::Union{String,Nothing}
-    start_at::Union{Dates.DateTime,Nothing}
-    end_at::Union{Dates.DateTime,Nothing}
+    start_at::Union{TimeZones.ZonedDateTime,Nothing}
+    end_at::Union{TimeZones.ZonedDateTime,Nothing}
 end
 
 # CourseProgress
@@ -77,7 +77,7 @@ struct CourseProgress <: CanvasObject
     next_requirement_url::Union{String,Nothing}
     """date the course was completed. null if the course has not been completed
     by this user"""
-    completed_at::Union{Dates.DateTime,Nothing}
+    completed_at::Union{TimeZones.ZonedDateTime,Nothing}
 end
 
 # Course
@@ -113,11 +113,11 @@ struct Course <: CanvasObject
     """the grade_passback_setting set on the course"""
     grade_passback_setting::Union{String,Nothing}
     """the date the course was created."""
-    created_at::Union{Dates.DateTime,Nothing}
+    created_at::Union{TimeZones.ZonedDateTime,Nothing}
     """the start date for the course, if applicable"""
-    start_at::Union{Dates.DateTime,Nothing}
+    start_at::Union{TimeZones.ZonedDateTime,Nothing}
     """the end date for the course, if applicable"""
-    end_at::Union{Dates.DateTime,Nothing}
+    end_at::Union{TimeZones.ZonedDateTime,Nothing}
     """the course-set locale, if applicable"""
     locale::Union{String,Nothing}
     """A list of enrollments linking the current user to the course. for student
@@ -241,10 +241,10 @@ struct LockInfo <: CanvasObject
     asset_string::Union{String,Nothing}
     """(Optional) Time at which this was/will be unlocked. Must be before the
     due date."""
-    unlock_at::Union{Dates.DateTime,Nothing}
+    unlock_at::Union{TimeZones.ZonedDateTime,Nothing}
     """(Optional) Time at which this was/will be locked. Must be after the due
     date."""
-    lock_at::Union{Dates.DateTime,Nothing}
+    lock_at::Union{TimeZones.ZonedDateTime,Nothing}
     """(Optional) Context module causing the lock."""
     context_module::Union{String,Nothing}
     manually_locked::Union{Bool,Nothing}
@@ -261,15 +261,15 @@ struct File <: CanvasObject
     url::Union{String,Nothing}
     """file size in bytes"""
     size::Union{Int,Nothing}
-    created_at::Union{Dates.DateTime,Nothing}
-    updated_at::Union{Dates.DateTime,Nothing}
-    unlock_at::Union{Dates.DateTime,Nothing}
+    created_at::Union{TimeZones.ZonedDateTime,Nothing}
+    updated_at::Union{TimeZones.ZonedDateTime,Nothing}
+    unlock_at::Union{TimeZones.ZonedDateTime,Nothing}
     locked::Union{Bool,Nothing}
     hidden::Union{Bool,Nothing}
-    lock_at::Union{Dates.DateTime,Nothing}
+    lock_at::Union{TimeZones.ZonedDateTime,Nothing}
     hidden_for_user::Union{Bool,Nothing}
     thumbnail_url::Union{String,Nothing}
-    modified_at::Union{Dates.DateTime,Nothing}
+    modified_at::Union{TimeZones.ZonedDateTime,Nothing}
     """simplified content-type mapping"""
     mime_class::Union{String,Nothing}
     """identifier for file in third-party transcoding service"""
@@ -288,17 +288,17 @@ struct Folder <: CanvasObject
     context_id::Union{Int,Nothing}
     files_count::Union{Int,Nothing}
     position::Union{Int,Nothing}
-    updated_at::Union{Dates.DateTime,Nothing}
+    updated_at::Union{TimeZones.ZonedDateTime,Nothing}
     folders_url::Union{String,Nothing}
     files_url::Union{String,Nothing}
     full_name::Union{String,Nothing}
-    lock_at::Union{Dates.DateTime,Nothing}
+    lock_at::Union{TimeZones.ZonedDateTime,Nothing}
     id::Union{Int,Nothing}
     folders_count::Union{Int,Nothing}
     name::Union{String,Nothing}
     parent_folder_id::Union{Int,Nothing}
-    created_at::Union{Dates.DateTime,Nothing}
-    unlock_at::Union{Dates.DateTime,Nothing}
+    created_at::Union{TimeZones.ZonedDateTime,Nothing}
+    unlock_at::Union{TimeZones.ZonedDateTime,Nothing}
     hidden::Union{Bool,Nothing}
     hidden_for_user::Union{Bool,Nothing}
     locked::Union{Bool,Nothing}
@@ -342,9 +342,9 @@ struct DiscussionTopic <: CanvasObject
     html_url::Union{String,Nothing}
     """The datetime the topic was posted. If it is null it hasn't been posted
     yet. (see delayed_post_at)"""
-    posted_at::Union{Dates.DateTime,Nothing}
+    posted_at::Union{TimeZones.ZonedDateTime,Nothing}
     """The datetime for when the last reply was in the topic."""
-    last_reply_at::Union{Dates.DateTime,Nothing}
+    last_reply_at::Union{TimeZones.ZonedDateTime,Nothing}
     """If true then a user may not respond to other replies until that user
     has made an initial reply. Defaults to false."""
     require_initial_post::Union{Bool,Nothing}
@@ -369,11 +369,11 @@ struct DiscussionTopic <: CanvasObject
     otherwise null."""
     assignment_id::Union{Int,Nothing}
     """The datetime to publish the topic (if not right away)."""
-    delayed_post_at::Union{Dates.DateTime,Nothing}
+    delayed_post_at::Union{TimeZones.ZonedDateTime,Nothing}
     """Whether this discussion topic is published (true) or draft state (false)"""
     published::Union{Bool,Nothing}
     """The datetime to lock the topic (if ever)."""
-    lock_at::Union{Dates.DateTime,Nothing}
+    lock_at::Union{TimeZones.ZonedDateTime,Nothing}
     """Whether or not the discussion is 'closed for comments'."""
     locked::Union{Bool,Nothing}
     """Whether or not the discussion has been 'pinned' by an instructor"""
@@ -428,23 +428,23 @@ struct Assignment <: CanvasObject
     """the assignment description, in an HTML fragment"""
     description::Union{String,Nothing}
     """The time at which this assignment was originally created"""
-    created_at::Union{Dates.DateTime,Nothing}
+    created_at::Union{TimeZones.ZonedDateTime,Nothing}
     """The time at which this assignment was last modified in any way"""
-    updated_at::Union{Dates.DateTime,Nothing}
+    updated_at::Union{TimeZones.ZonedDateTime,Nothing}
     """the due date for the assignment. returns null if not present. NOTE: If
     this assignment has assignment overrides, this field will be the due date
     as it applies to the user requesting information from the API."""
-    due_at::Union{Dates.DateTime,Nothing}
+    due_at::Union{TimeZones.ZonedDateTime,Nothing}
     """the lock date (assignment is locked after this date). returns null if
     not present. NOTE: If this assignment has assignment overrides, this field
     will be the lock date as it applies to the user requesting information from
     the API."""
-    lock_at::Union{Dates.DateTime,Nothing}
+    lock_at::Union{TimeZones.ZonedDateTime,Nothing}
     """the unlock date (assignment is unlocked after this date) returns null
     if not present NOTE: If this assignment has assignment overrides, this field
     will be the unlock date as it applies to the user requesting information
     from the API."""
-    unlock_at::Union{Dates.DateTime,Nothing}
+    unlock_at::Union{TimeZones.ZonedDateTime,Nothing}
     """whether this assignment has overrides"""
     has_overrides::Union{Bool,Nothing}
     """(Optional) all dates associated with the assignment, if applicable"""
@@ -503,7 +503,7 @@ struct Assignment <: CanvasObject
     occurs after the default due date. If blank, or date is not after the assignment's
     due date, the assignment's due date will be used. NOTE: This key is NOT
     present unless you have automatic_peer_reviews set to true."""
-    peer_reviews_assign_at::Union{Dates.DateTime,Nothing}
+    peer_reviews_assign_at::Union{TimeZones.ZonedDateTime,Nothing}
     """Boolean representing whether or not members from within the same group
     on a group assignment can be assigned to peer review their own group's work"""
     intra_group_peer_reviews::Union{Bool,Nothing}
@@ -682,7 +682,7 @@ struct Submission <: CanvasObject
     """The types of submission ex: ('online_text_entry'|'online_url'|'online_upload'|'media_recording')"""
     submission_type::Union{String,Nothing}
     """The timestamp when the assignment was submitted"""
-    submitted_at::Union{Dates.DateTime,Nothing}
+    submitted_at::Union{TimeZones.ZonedDateTime,Nothing}
     """The URL of the submission (for 'online_url' submissions)."""
     url::Union{String,Nothing}
     """The id of the user who created the submission"""
@@ -694,7 +694,7 @@ struct Submission <: CanvasObject
     autograded quizzes set grader_id to the negative of the quiz id. Submissions
     autograded by LTI tools set grader_id to the negative of the tool id."""
     grader_id::Union{Int,Nothing}
-    graded_at::Union{Dates.DateTime,Nothing}
+    graded_at::Union{TimeZones.ZonedDateTime,Nothing}
     """The submissions user (see user API) (optional)"""
     user::Union{User,Nothing}
     """Whether the submission was made after the applicable due date"""
@@ -729,7 +729,7 @@ struct Submission <: CanvasObject
     anonymous_id::Union{String,Nothing}
     """The date this submission was posted to the student, or nil if it has
     not been posted."""
-    posted_at::Union{Dates.DateTime,Nothing}
+    posted_at::Union{TimeZones.ZonedDateTime,Nothing}
 end
 
 # GradingRules
@@ -781,15 +781,15 @@ struct AssignmentOverride <: CanvasObject
     """the title of the override"""
     title::Union{String,Nothing}
     """the overridden due at (present if due_at is overridden)"""
-    due_at::Union{Dates.DateTime,Nothing}
+    due_at::Union{TimeZones.ZonedDateTime,Nothing}
     """the overridden all day flag (present if due_at is overridden)"""
     all_day::Union{Bool,Nothing}
     """the overridden all day date (present if due_at is overridden)"""
-    all_day_date::Union{Dates.DateTime,Nothing}
+    all_day_date::Union{TimeZones.ZonedDateTime,Nothing}
     """the overridden unlock at (present if unlock_at is overridden)"""
-    unlock_at::Union{Dates.DateTime,Nothing}
+    unlock_at::Union{TimeZones.ZonedDateTime,Nothing}
     """the overridden lock at, if any (present if lock_at is overridden)"""
-    lock_at::Union{Dates.DateTime,Nothing}
+    lock_at::Union{TimeZones.ZonedDateTime,Nothing}
 end
 
 # Section
@@ -813,9 +813,9 @@ struct Section <: CanvasObject
     This field is only included if the user has permission to view SIS information."""
     sis_course_id::Union{String,Nothing}
     """the start date for the section, if applicable"""
-    start_at::Union{Dates.DateTime,Nothing}
+    start_at::Union{TimeZones.ZonedDateTime,Nothing}
     """the end date for the section, if applicable"""
-    end_at::Union{Dates.DateTime,Nothing}
+    end_at::Union{TimeZones.ZonedDateTime,Nothing}
     """Restrict user enrollments to the start and end dates of the section"""
     restrict_enrollments_to_section_dates::Union{Bool,Nothing}
     """The unique identifier of the original course of a cross-listed section"""
