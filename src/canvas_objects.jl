@@ -58,7 +58,7 @@ function json2canvas(::Type{CO}, data::AbstractDict{T}) where {CO<:CanvasObject,
     # Make sure the struct does not miss any fields
     for k in keys(data)
         if !(Symbol(k) ∈ fieldnames(CO))
-            @warn "key $k missing from struct definition" k v=data[k]
+            @debug "key `$(k)` missing from `$(CO)` struct definition" CO key=k value=data[k]
         end
     end
     # @assert all(k->Symbol(k) ∈ fieldnames(CO), keys(data))
