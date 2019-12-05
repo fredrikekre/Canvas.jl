@@ -1,0 +1,24 @@
+diff --git a/Assignment.jl b/Assignment.jl
+index e099623..a10d94f 100644
+--- a/Assignment.jl
++++ b/Assignment.jl
+@@ -173,7 +173,7 @@ struct Assignment <: CanvasObject
+     information from the api) current submission for the assignment. See the
+     Submissions API for an example response. If the user does not have a submission,
+     this key will be absent."""
+-    submission::Union{Submission,Nothing}
++    submission::Union{Any,Nothing} # Union{Submission,Nothing}
+     """(Optional) If true, the rubric is directly tied to grading the assignment.
+     Otherwise, it is only advisory. Included if there is an associated rubric."""
+     use_rubric_for_grading::Union{Bool,Nothing}
+@@ -223,4 +223,11 @@ struct Assignment <: CanvasObject
+     courses using New Gradebook."""
+     post_manually::Union{Bool,Nothing}
+ end
++function adjust_fieldtype(::Type{T}, ::Type{Assignment}, sym::Symbol) where T
++    if sym === :submission
++        return Union{Submission,Nothing}
++    else
++        return T
++    end
++end
