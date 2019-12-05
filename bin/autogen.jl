@@ -16,8 +16,10 @@ const outstructs = [
 
 import JSON, OrderedCollections
 # git = mktempdir()
-# run(Cmd(`git clone https://github.com/instructure/canvas-lms.git .`; dir=git))
 git = "/tmp/jl_NR65ip"
+commit = "c72bf19e9dba9948ed6bc745f9335510fc51633c"
+# run(Cmd(`git clone https://github.com/instructure/canvas-lms.git .`; dir=git))
+run(Cmd(`git checkout $(commit)`; dir=git))
 
 model_regex = r"#\s*@model\s*(\w+)\n(#     {.*?\n#     })"s
 
