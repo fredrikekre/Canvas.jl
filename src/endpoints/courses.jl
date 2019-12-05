@@ -46,8 +46,17 @@ function create_course(acc::Account; kwargs...)
     return Course(json)
 end
 
-# Upload a file (implemented in endpoints/files.jl)
-# https://canvas.instructure.com/doc/api/courses#method.courses.create_file
+"""
+    Canvas.upload_file(c::Course, file; kwargs...) -> File
+
+**Request endpoint:** `POST /api/v1/courses/:course_id/files`
+
+**Canvas API documentation:**
+[*Upload a file to a course*](https://canvas.instructure.com/doc/api/courses.html#method.courses.create_file)
+"""
+function upload_file(c::Course, file; kwargs...)
+    return _upload_file("/api/v1/$(pid(c))/files", file; kwargs...)
+end
 
 """
     Canvas.users(course::Course; kwargs...) -> Vector{Course}, page_data

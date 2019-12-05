@@ -1,51 +1,6 @@
 # This file roughly corresponds to functions documented in the
 # Files API: https://canvas.instructure.com/doc/api/files
 
-# File upload is documenter here: https://canvas.instructure.com/doc/api/file.file_uploads
-"""
-    Canvas.upload_file(co::Union{Course,Folder}, file; kwargs...) -> File
-
-**Request endpoints:**
- - `POST /api/v1/folders/:folder_id/files`.
- - `POST /api/v1/courses/:course_id/files`.
-
-**Canvas API documentation:**
- - [*Upload a file to a folder*](https://canvas.instructure.com/doc/api/files#method.folders.create_file)
- - [*Upload a file to a course*](https://canvas.instructure.com/doc/api/courses.html#method.courses.create_file)
-
-"""
-function upload_file(co::Union{Folder,Course}, file; api::CanvasAPI=getapi(), params::Dict=Dict{String,Any}(), kwargs...)
-    params = Dict{String,Any}(
-        "name" => basename(file),
-        "size" => stat(file).size,
-        params...
-    )
-
-    # Step 1: Telling Canvas about the file upload and getting a token
-    json = request("POST", "/api/v1/$(pid(co))/files"; api=api, params=params, kwargs...)
-
-    # Step 2: Upload the file data to the URL given in the previous response
-    uri = HTTP.URI(json["upload_url"])
-    req = open(file, "r") do io
-        body = collect(json["upload_params"])
-        push!(body, "file"=>io) # file must be last argument
-        form = HTTP.Form(body)
-        headers = canvas_headers(; auth=nothing) # should not be authenticated
-        return HTTP.request("POST", uri, headers, form)
-    end
-
-    # Step 3: Confirm the upload's success
-    if HTTP.isredirect(req)
-        # 3XX Redirect
-        loc = HTTP.header(req, "Location")
-        json = request("GET", loc; api=api) # Should be authenticated
-    else # req.status == 201
-        # 201 Created
-        json = JSON.parse(HTTP.payload(req, String))
-    end
-    return File(json)
-end
-
 """
     Canvas.quota(co::Union{Course,Group,User}; kwargs...) -> Dict
 
@@ -261,6 +216,19 @@ end
 function delete_folder(f::Folder; kwargs...)
     json = request("DELETE", "/api/v1$(pid(f))"; kwargs...)
     return json # ??
+end
+
+"""
+    Canvas.upload_file(f::Folder, file; kwargs...) -> File
+
+**Request endpoint:** `POST /api/v1/folders/:folder_id/files`
+
+**Canvas API documentation:**
+[*Upload a file to a folder*](https://canvas.instructure.com/doc/api/files#method.folders.create_file)
+
+"""
+function upload_file(f::Folder, file; kwargs...)
+    return _upload_file("/api/v1/$(pid(f))/files", file; kwargs...)
 end
 
 """

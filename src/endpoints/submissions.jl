@@ -15,3 +15,18 @@ function submissions(co::Union{Course,Section}, a::Assignment; kwargs...)
     json, page_data = paged_request("GET", "/api/v1$(pid(co))$(pid(a))/submissions"; kwargs...)
     return Submission.(json), page_data
 end
+
+"""
+    Canvas.grade_submission(c::Union{Course,Section}, a::Assignment, user::User; kwargs...) -> ??
+
+**Request endpoints:**
+ - `PUT /api/v1/courses/:course_id/assignments/:assignment_id/submissions/:user_id`
+ - `PUT /api/v1/sections/:section_id/assignments/:assignment_id/submissions/:user_id`
+
+**Canvas API documentation:**
+[*Grade or comment on a submission*](https://canvas.instructure.com/doc/api/submissions#method.submissions_api.update)
+"""
+function grade_submission(co::Union{Course,Section}, a::Assignment, u::User; kwargs...)
+    json = request("PUT", "/api/v1$(pid(co))$(pid(a))/submissions/$(id(u))"; kwargs...)
+    return json
+end
