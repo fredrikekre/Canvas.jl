@@ -7,7 +7,7 @@
 **Request endpoint:** `GET /api/v1/courses`
 
 **Canvas API documentation:**
-[List your courses](https://canvas.instructure.com/doc/api/courses#method.courses.index)
+[*List your courses*](https://canvas.instructure.com/doc/api/courses#method.courses.index)
 
 **Examples**
 ```julia
@@ -26,7 +26,7 @@ end
 **Request endpoint:** `GET /api/v1/users/:user_id/courses`
 
 **Canvas API documentation:**
-[List courses for a user](https://canvas.instructure.com/doc/api/courses#method.courses.user_index)
+[*List courses for a user*](https://canvas.instructure.com/doc/api/courses#method.courses.user_index)
 """
 function courses(user::User; kwargs...)
     json, page_data = paged_request("GET", "/api/v1/users/$(id(user))/courses"; kwargs...)
@@ -39,7 +39,7 @@ end
 **Request endpoint:** `POST /api/v1/accounts/:account_id/courses`
 
 **Canvas API documentation:**
-[Create a new course](https://canvas.instructure.com/doc/api/courses#method.courses.create)
+[*Create a new course*](https://canvas.instructure.com/doc/api/courses#method.courses.create)
 """
 function create_course(acc::Account; kwargs...)
     json = request("POST", "/api/v1/accounts/$(id(acc))/courses"; kwargs...)
@@ -66,7 +66,7 @@ end
  - `GET /api/v1/courses/:course_id/search_users`
 
 **Canvas API documentation:**
-[List users in course](https://canvas.instructure.com/doc/api/courses#method.courses.users)
+[*List users in course*](https://canvas.instructure.com/doc/api/courses#method.courses.users)
 """
 function users(course::Course; kwargs...)
     json, page_data = paged_request("GET", "/api/v1/courses/$(id(course))/users"; kwargs...)
@@ -79,7 +79,7 @@ end
 **Request endpoint:** `GET /api/v1/courses/:course_id/recent_students`
 
 **Canvas API documentation:**
-[List recently logged in students](https://canvas.instructure.com/doc/api/courses#method.courses.recent_students)
+[*List recently logged in students*](https://canvas.instructure.com/doc/api/courses#method.courses.recent_students)
 """
 function recent_students(course::Course; kwargs...)
     json, page_data = paged_request("GET", "/api/v1/courses/$(id(course))/recent_students"; kwargs...)
@@ -92,7 +92,7 @@ end
 **Request endpoint:** `GET /api/v1/courses/:course_id/users/:id`
 
 **Canvas API documentation:**
-[Get single user](https://canvas.instructure.com/doc/api/courses#method.courses.user)
+[*Get single user*](https://canvas.instructure.com/doc/api/courses#method.courses.user)
 """
 function user(course::Course, user::User; kwargs...)
     json = request("GET", "/api/v1/courses/$(id(course))/users/$(id(user))"; kwargs...)
@@ -105,7 +105,7 @@ end
 **Request endpoint:** `GET /api/v1/courses/:course_id/content_share_users`
 
 **Canvas API documentation:**
-[List recently logged in students](https://canvas.instructure.com/doc/api/courses#method.courses.content_share_users)
+[*List recently logged in students*](https://canvas.instructure.com/doc/api/courses#method.courses.content_share_users)
 """
 function content_share_users(course::Course; kwargs...)
     json, page_data = paged_request("GET", "/api/v1/courses/$(id(course))/content_share_users"; kwargs...)
@@ -118,7 +118,7 @@ end
 **Request endpoint:** `POST /api/v1/courses/:course_id/preview_html`
 
 **Canvas API documentation:**
-[Preview processed html](https://canvas.instructure.com/doc/api/courses#method.courses.preview_html)
+[*Preview processed html*](https://canvas.instructure.com/doc/api/courses#method.courses.preview_html)
 """
 function preview_html(course::Course; kwargs...)
     json = request("GET", "/api/v1/courses/$(id(course))/preview_html"; kwargs...)
@@ -133,7 +133,7 @@ end
  - `GET /api/v1/courses/:course_id/activity_stream/summary`
 
 **Canvas API documentation:**
-[Course activity stream](https://canvas.instructure.com/doc/api/courses#method.courses.activity_stream)
+[*Course activity stream*](https://canvas.instructure.com/doc/api/courses#method.courses.activity_stream)
 and [Course activity stream summary](https://canvas.instructure.com/doc/api/courses#method.courses.activity_stream_summary)
 """
 function activity_stream(course::Course; summary=false, kwargs...)
@@ -149,7 +149,7 @@ end
 **Request endpoint:** `GET /api/v1/courses/:course_id/todo`
 
 **Canvas API documentation:**
-[Course TODO items](https://canvas.instructure.com/doc/api/courses#method.courses.destroy)
+[*Course TODO items*](https://canvas.instructure.com/doc/api/courses#method.courses.destroy)
 """
 function todo(course::Course; kwargs...)
     json, page_data = paged_request("GET", "/api/v1/courses/$(id(course))/todo"; kwargs...)
@@ -175,7 +175,7 @@ end
 **Request endpoint:** `GET /api/v1/courses/:course_id/settings`
 
 **Canvas API documentation:**
-[Get course settings](https://canvas.instructure.com/doc/api/courses#method.courses.api_settings)
+[*Get course settings*](https://canvas.instructure.com/doc/api/courses#method.courses.api_settings)
 """
 function settings(course::Course; kwargs...)
     json = request("GET", "/api/v1/courses/$(id(course))/settings"; kwargs...)
@@ -188,7 +188,7 @@ end
 **Request endpoint:** `PUT /api/v1/courses/:course_id/settings`
 
 **Canvas API documentation:**
-[Update course settings](https://canvas.instructure.com/doc/api/courses#method.courses.update_settings)
+[*Update course settings*](https://canvas.instructure.com/doc/api/courses#method.courses.update_settings)
 """
 function update_settings(course::Course; kwargs...)
     json = request("PUT", "/api/v1/courses/$(id(course))/settings"; kwargs...)
@@ -201,7 +201,7 @@ end
 **Request endpoint:** `GET /api/v1/courses/:id`
 
 **Canvas API documentation:**
-[Get a single course](https://canvas.instructure.com/doc/api/courses#method.courses.show)
+[*Get a single course*](https://canvas.instructure.com/doc/api/courses#method.courses.show)
 """
 function course(course::Course; kwargs...)
     json = request("GET", "/api/v1/courses/$(id(course))"; kwargs...)
@@ -214,7 +214,7 @@ end
 **Request endpoint:** `PUT /api/v1/courses/:id`
 
 **Canvas API documentation:**
-[Update a course](https://canvas.instructure.com/doc/api/courses#method.courses.update)
+[*Update a course*](https://canvas.instructure.com/doc/api/courses#method.courses.update)
 """
 function update_course(course::Course; kwargs...)
     json = request("PUT", "/api/v1/courses/$(id(course))"; kwargs...)
@@ -227,7 +227,7 @@ end
 **Request endpoint:** `PUT /api/v1/accounts/:account_id/courses`
 
 **Canvas API documentation:**
-[Update courses](https://canvas.instructure.com/doc/api/courses#method.courses.batch_update)
+[*Update courses*](https://canvas.instructure.com/doc/api/courses#method.courses.batch_update)
 """
 function update_courses(acc::Account; kwargs...)
     json = request("PUT", "/api/v1/accounts/$(id(acc))/courses"; kwargs...)
@@ -240,7 +240,7 @@ end
 **Request endpoint:** `POST /api/v1/courses/:course_id/reset_content`
 
 **Canvas API documentation:**
-[Reset a course](https://canvas.instructure.com/doc/api/courses#method.courses.reset_content)
+[*Reset a course*](https://canvas.instructure.com/doc/api/courses#method.courses.reset_content)
 """
 function reset_content(course::Course; kwargs...)
     json = request("POST", "/api/v1/courses/$(id(course))/reset_content"; kwargs...)
@@ -253,7 +253,7 @@ end
 **Request endpoint:** `GET /api/v1/courses/:course_id/effective_due_dates`
 
 **Canvas API documentation:**
-[Get effective due dates](https://canvas.instructure.com/doc/api/courses#method.courses.effective_due_dates)
+[*Get effective due dates*](https://canvas.instructure.com/doc/api/courses#method.courses.effective_due_dates)
 """
 function effective_due_dates(course::Course; kwargs...)
     json = request("GET", "/api/v1/courses/$(id(course))/effective_due_dates"; kwargs...)
@@ -266,7 +266,7 @@ end
 **Request endpoint:** `GET /api/v1/courses/:course_id/permissions`
 
 **Canvas API documentation:**
-[Permissions](https://canvas.instructure.com/doc/api/courses#method.courses.permissions)
+[*Permissions*](https://canvas.instructure.com/doc/api/courses#method.courses.permissions)
 """
 function permissions(course::Course; kwargs...)
     json = request("GET", "/api/v1/courses/$(id(course))/permissions"; kwargs...)

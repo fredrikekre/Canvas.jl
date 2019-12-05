@@ -37,7 +37,7 @@ end
 """
     Canvas.public_url(f::File; kwargs...) -> Dict
 
-**Request endpoint:* `GET /api/v1/files/:id/public_url`
+**Request endpoint:** `GET /api/v1/files/:id/public_url`
 
 **Canvas API documentation:**
 [*Get public inline preview url*](https://canvas.instructure.com/doc/api/files#method.files.public_url)
@@ -50,7 +50,7 @@ end
 """
     Canvas.file(f::File; kwargs...) -> File
 
-**Request endpoint:* `GET /api/v1/files/:id`
+**Request endpoint:** `GET /api/v1/files/:id`
 
 **Canvas API documentation:**
 [*Get file*](https://canvas.instructure.com/doc/api/files#method.files.api_show)
@@ -78,7 +78,7 @@ end
 """
     Canvas.update_file(f::File; kwargs...) -> File
 
-**Request endpoint:* `PUT /api/v1/files/:id`
+**Request endpoint:** `PUT /api/v1/files/:id`
 
 **Canvas API documentation:**
 [*Update file*](https://canvas.instructure.com/doc/api/files#method.files.api_update)
@@ -91,7 +91,7 @@ end
 """
     Canvas.delete_file(f::File; kwargs...) -> File
 
-**Request endpoint:* `DELETE /api/v1/files/:id`
+**Request endpoint:** `DELETE /api/v1/files/:id`
 
 **Canvas API documentation:**
 [*Delete file*](https://canvas.instructure.com/doc/api/files#method.files.destroy)
@@ -150,7 +150,7 @@ end
 """
     Canvas.folder(f::Folder; kwargs...) -> Folder
 
-**Request endpoint:* `GET /api/v1/folders/:id`
+**Request endpoint:** `GET /api/v1/folders/:id`
 
 **Canvas API documentation:**
 [*Get folder*](https://canvas.instructure.com/doc/api/files#method.folders.show)
@@ -178,7 +178,7 @@ end
 """
     Canvas.update_folder(f::Folder; kwargs...) -> Folder
 
-**Request endpoint:* `PUT /api/v1/folders/:id`
+**Request endpoint:** `PUT /api/v1/folders/:id`
 
 **Canvas API documentation:**
 [*Update folder*](https://canvas.instructure.com/doc/api/files#method.folders.update)
@@ -208,7 +208,7 @@ end
 """
     Canvas.delete_folder(f::Folder; kwargs...) -> Dict
 
-**Request endpoint:* `DELETE /api/v1/folders/:id`
+**Request endpoint:** `DELETE /api/v1/folders/:id`
 
 **Canvas API documentation:**
 [*Delete folder*](https://canvas.instructure.com/doc/api/files#method.folders.api_destroy)
@@ -234,7 +234,7 @@ end
 """
     Canvas.copy_file(f::Folder; kwargs...) -> File
 
-**Request endpoint:* `POST /api/v1/folders/:dest_folder_id/copy_file`
+**Request endpoint:** `POST /api/v1/folders/:dest_folder_id/copy_file`
 
 **Canvas API documentation:**
 [*Copy a file*](https://canvas.instructure.com/doc/api/files#method.folders.copy_file)
@@ -247,7 +247,7 @@ end
 """
     Canvas.copy_folder(f::Folder; kwargs...) -> Folder
 
-**Request endpoint:* `POST /api/v1/folders/:dest_folder_id/copy_folder`
+**Request endpoint:** `POST /api/v1/folders/:dest_folder_id/copy_folder`
 
 **Canvas API documentation:**
 [*Copy a folder*](https://canvas.instructure.com/doc/api/files#method.folders.copy_folder)
