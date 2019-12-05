@@ -114,7 +114,7 @@ function print_json(io_out, json; patch)
     if length(json["properties"]) == 1
         # need to print disambiguation constructor for structs with just one field
         println(io, "# Disambiguating constructor needed for single field structs")
-        println(io, json["id"], "(data) = json2canvas(", json["id"], ", data)")
+        println(io, json["id"], "(data::AbstractDict) = json2canvas(", json["id"], ", data)")
     end
     println(io)
     # Apply patches

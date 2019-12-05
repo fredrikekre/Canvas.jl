@@ -1,0 +1,13 @@
+diff --git a/Submission.jl b/Submission.jl
+index 9fb3f98..45ca209 100644
+--- a/Submission.jl
++++ b/Submission.jl
+@@ -64,7 +64,7 @@ struct Submission <: CanvasObject
+     policy for a late or missing assignment."""
+     points_deducted::Union{Float64,Nothing}
+     """The amount of time, in seconds, that an submission is late by."""
+-    seconds_late::Union{Float64,Nothing}
++    seconds_late::Union{Int,Nothing} # Union{Float64,Nothing}
+     """The current state of the submission"""
+     workflow_state::Union{String,Nothing}
+     """Extra submission attempts allowed for the given user and assignment."""

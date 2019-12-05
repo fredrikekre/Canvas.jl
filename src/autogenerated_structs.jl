@@ -55,7 +55,7 @@ struct CalendarLink <: CanvasObject
     ics::Union{String,Nothing}
 end
 # Disambiguating constructor needed for single field structs
-CalendarLink(data) = json2canvas(CalendarLink, data)
+CalendarLink(data::AbstractDict) = json2canvas(CalendarLink, data)
 
 # Term
 struct Term <: CanvasObject
@@ -718,7 +718,7 @@ struct Submission <: CanvasObject
     policy for a late or missing assignment."""
     points_deducted::Union{Float64,Nothing}
     """The amount of time, in seconds, that an submission is late by."""
-    seconds_late::Union{Float64,Nothing}
+    seconds_late::Union{Int,Nothing} # Union{Float64,Nothing}
     """The current state of the submission"""
     workflow_state::Union{String,Nothing}
     """Extra submission attempts allowed for the given user and assignment."""
