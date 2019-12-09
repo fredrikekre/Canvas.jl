@@ -5,7 +5,7 @@ Julia package for interacting with the Canvas API.
 """
 module Canvas
 
-import HTTP, JSON, TimeZones
+import HTTP, JSON, Dates, TimeZones
 
 ####################
 ## Authentication ##

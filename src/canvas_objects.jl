@@ -23,6 +23,7 @@ pid(x::Group) = "/groups/$(id(x))"
 pid(x::File) = "/files/$(id(x))"
 pid(x::Folder) = "/folders/$(id(x))"
 pid(x::Assignment) = "/assignments/$(id(x))"
+pid(x::AssignmentOverride) = "/overrides/$(id(x))"
 
 namefield(x) = nothing
 
@@ -87,8 +88,13 @@ function convert′(::Type{Union{Vector{CO},Nothing}}, val) where CO <: CanvasOb
     return CO.(val)
 end
 function convert′(::Type{Union{TimeZones.ZonedDateTime,Nothing}}, val)
-    df = TimeZones.dateformat"yyyy-mm-ddTHH:MM:SSz"
+    df = Dates.dateformat"yyyy-mm-ddTHH:MM:SSz"
     zdt = parse(TimeZones.ZonedDateTime, val, df)
     zdt′ = TimeZones.astimezone(zdt, TimeZones.localzone())
     return convert(Union{TimeZones.ZonedDateTime,Nothing}, zdt′)
+end
+function convert′(::Type{Union{Dates.Date,Nothing}}, val)
+    df = Dates.dateformat"yyyy-mm-dd"
+    d = parse(Dates.Date, val, df)
+    return convert(Union{Dates.Date,Nothing}, d)
 end

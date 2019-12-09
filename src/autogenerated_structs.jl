@@ -785,7 +785,7 @@ struct AssignmentOverride <: CanvasObject
     """the overridden all day flag (present if due_at is overridden)"""
     all_day::Union{Bool,Nothing}
     """the overridden all day date (present if due_at is overridden)"""
-    all_day_date::Union{TimeZones.ZonedDateTime,Nothing}
+    all_day_date::Union{Dates.Date,Nothing} # Union{TimeZones.ZonedDateTime,Nothing}
     """the overridden unlock at (present if unlock_at is overridden)"""
     unlock_at::Union{TimeZones.ZonedDateTime,Nothing}
     """the overridden lock at, if any (present if lock_at is overridden)"""
