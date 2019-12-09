@@ -1,9 +1,15 @@
 # Files API
 
-See https://canvas.instructure.com/doc/api/files
+This page documents the Files API of Canvas, see
+[https://canvas.instructure.com/doc/api/files](https://canvas.instructure.com/doc/api/files)
+for details.
+
+#### Files API Index
+```@index
+Pages = ["files.md"]
+```
 
 ```@docs
-Canvas.upload_file
 Canvas.quota
 Canvas.files
 Canvas.public_url

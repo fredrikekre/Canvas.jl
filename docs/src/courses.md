@@ -1,10 +1,18 @@
 # Courses API
 
-See https://canvas.instructure.com/doc/api/courses
+This page documents the Courses API of Canvas, see
+[https://canvas.instructure.com/doc/api/courses](https://canvas.instructure.com/doc/api/courses)
+for details.
+
+#### Courses API Index
+```@index
+Pages = ["courses.md"]
+```
 
 ```@docs
 Canvas.courses
 Canvas.create_course
+Canvas.upload_file
 Canvas.users
 Canvas.recent_students
 Canvas.user

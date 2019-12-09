@@ -1,6 +1,13 @@
 # Assignments API
 
-See https://canvas.instructure.com/doc/api/assignments
+This page documents the Assignments API of Canvas, see
+[https://canvas.instructure.com/doc/api/assignments](https://canvas.instructure.com/doc/api/assignments)
+for details.
+
+#### Assignments API Index
+```@index
+Pages = ["assignments.md"]
+```
 
 ```@docs
 Canvas.delete_assignment
