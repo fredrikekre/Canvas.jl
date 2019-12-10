@@ -71,6 +71,26 @@ function canvas_headers(headers=nothing; auth=nothing)
     return headers
 end
 
+# Process parameters before sending them to HTTP.jl
+process_params(params::Union{AbstractString,Nothing}) = params
+function process_params(params)
+    params′ = Dict{String,Any}()
+    # Assume it iterates pairs
+    for (k, v) in params
+        k = process_key(k)
+        v = process_val(v)
+        params′[k] = v
+    end
+    return params′
+end
+process_key(k) = k
+process_val(k) = k
+function process_val(zdt::TimeZones.ZonedDateTime)
+    zdt = TimeZones.astimezone(zdt, TimeZones.tz"Z")
+    str = Dates.format(zdt, Dates.dateformat"yyyy-mm-ddTHH:MM:SSZ")
+    return str
+end
+
 """
     Canvas.request(method, endpoint; kwargs...) -> JSON
 
@@ -109,6 +129,7 @@ function _request(method::String, endpoint::String=""; api::CanvasAPI=getapi(),
                  headers=nothing, params=nothing, kwargs...)
     headers = canvas_headers(headers; auth=api.auth)
     uri = HTTP.merge(api.uri, path=endpoint)
+    params = process_params(params)
     r = HTTP.request(method, uri, headers; query=params, kwargs...)
     return r
 end
@@ -138,6 +159,7 @@ function _paged_request(method::String, endpoint::String=""; api::CanvasAPI=geta
     headers = canvas_headers(headers; auth=api.auth)
     if isempty(start_page) # first request
         uri = HTTP.merge(api.uri, path=endpoint)
+        params = process_params(params)
         r = HTTP.request(method, uri, headers; query=params, kwargs...)
     else
         # isempty(endpoint) || throw(ArgumentError("`start_page` kwarg is incompatible with `endpoint` argument"))
@@ -175,6 +197,7 @@ include("canvas_objects.jl")
 #####################
 # Exposed endpoints #
 #####################
+include("endpoints/file_uploads.jl")
 include("endpoints/assignments.jl")
 include("endpoints/courses.jl")
 include("endpoints/files.jl")

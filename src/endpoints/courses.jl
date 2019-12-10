@@ -55,7 +55,7 @@ end
 """
 function users(course::Course; kwargs...)
     json, page_data = paged_request("GET", "/api/v1/courses/$(id(course))/users"; kwargs...)
-    return Course.(json), page_data
+    return User.(json), page_data
 end
 
 """
