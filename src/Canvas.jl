@@ -77,14 +77,13 @@ function process_params(params)
     params′ = Dict{String,Any}()
     # Assume it iterates pairs
     for (k, v) in params
-        k = process_key(k)
-        v = process_val(v)
-        params′[k] = v
+        params′[process_key(k)] = process_val(v)
     end
     return params′
 end
-process_key(k) = k
-process_val(k) = k
+process_key(k) = string(k)
+process_val(v) = string(v)
+process_val(v::AbstractVector) = map(process_val, v)
 function process_val(zdt::TimeZones.ZonedDateTime)
     zdt = TimeZones.astimezone(zdt, TimeZones.tz"Z")
     str = Dates.format(zdt, Dates.dateformat"yyyy-mm-ddTHH:MM:SSZ")
