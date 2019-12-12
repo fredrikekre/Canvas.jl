@@ -94,7 +94,6 @@ end
 """
 function assignment_overrides(c::Course, a::Assignment; kwargs...)
     json, page_data = paged_request("GET", "/api/v1$(pid(c))$(pid(a))/overrides"; kwargs...)
-    return json
     return AssignmentOverride.(json), page_data
 end
 
