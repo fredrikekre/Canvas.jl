@@ -6,7 +6,7 @@
 
 Upload a file to attach to a submission comment. Return a [`File`](@ref).
 
-**Canvas API documentation:**
+**Canvas API documentation**:
 [Upload a file (`POST /api/v1/courses/:course_id/assignments/:assignment_id/submissions/:user_id/comments/files`)]
 (https://canvas.instructure.com/doc/api/submission_comments#method.submission_comments_api.create_file)
 """

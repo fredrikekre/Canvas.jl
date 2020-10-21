@@ -139,6 +139,7 @@ function Internals.request(method::String, endpoint::String=""; api::CanvasAPI=g
     uri = HTTP.merge(api.uri, path=endpoint)
     params = Internals.process_params(params)
     r = HTTP.request(method, uri, headers; query=params, kwargs...)
+    @assert !HTTP.hasheader(r, "Link")
     return r
 end
 
