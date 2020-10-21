@@ -2,11 +2,13 @@
 # Assignments API: https://canvas.instructure.com/doc/api/assignments
 
 """
-    Canvas.delete_assignment(co::Union{Course,Group,User}; kwargs...) -> Assignment
+    Canvas.delete_assignment(c::Course, a::Assignment; kwargs...) -> Assignment
 
- - Request endpoint: `DELETE /api/v1/courses/:course_id/assignments/:id`
- - Canvas API documentation:
-   [*Delete an assignment*](https://canvas.instructure.com/doc/api/assignments#method.assignments.destroy)
+Delete the given assignment and return the former details. Return an [`Assignment`](@ref).
+
+**Canvas API documentation**:
+[Delete an assignment (`DELETE /api/v1/courses/:course_id/assignments/:id`)]
+(https://canvas.instructure.com/doc/api/assignments#method.assignments.destroy)
 """
 function delete_assignment(c::Course, a::Assignment; kwargs...)
     json = request("DELETE", "/api/v1$(Internals.pid(c))$(Internals.pid(a))"; kwargs...)
@@ -16,21 +18,27 @@ end
 """
     Canvas.assignments(c::Course; kwargs...) -> Vector{Assignment}, page_data
 
- - Request endpoint: `GET /api/v1/courses/:course_id/assignments`
- - Canvas API documentation:
-   [*List assignments*](https://canvas.instructure.com/doc/api/assignments#method.assignments_api.index)
+Return the paginated list of assignments for the course.
+Return a vector of [`Assignment`](@ref)s and a dictionary with page data.
+
+**Canvas API documentation**:
+[List assignments (`GET /api/v1/courses/:course_id/assignments`)]
+(https://canvas.instructure.com/doc/api/assignments#method.assignments_api.index)
 """
 function assignments(c::Course; kwargs...)
     json, page_data = paged_request("GET", "/api/v1$(Internals.pid(c))/assignments"; kwargs...)
     return Assignment.(json), page_data
 end
-# TODO collapse ^ and below
+
 """
     Canvas.assignments(c::Course, a::AssignmentGroup; kwargs...) -> Vector{Assignment}, page_data
 
- - Request endpoint: `GET /api/v1/courses/:course_id/assignments`
- - Canvas API documentation:
-   [*List assignments*](https://canvas.instructure.com/doc/api/assignments#method.assignments_api.index)
+Return the paginated list of assignments for the course and assignment group.
+Return a vector of [`Assignment`](@ref)s and a dictionary with page data.
+
+**Canvas API documentation**:
+[List assignments (`GET /api/v1/courses/:course_id/assignment_groups/:assignment_group_id/assignments`)]
+(https://canvas.instructure.com/doc/api/assignments#method.assignments_api.index)
 """
 function assignments(c::Course, a::AssignmentGroup; kwargs...)
     json, page_data = paged_request("GET", "/api/v1$(Internals.pid(c))$(Internals.pid(a))/assignments"; kwargs...)
@@ -40,9 +48,12 @@ end
 """
     Canvas.assignments(u::User, c::Course; kwargs...) -> Vector{Assignment}, page_data
 
- - Request endpoint: `GET /api/v1/courses/:course_id/assignments`
- - Canvas API documentation:
-   [*List assignments for user*](https://canvas.instructure.com/doc/api/assignments#method.assignments_api.user_index)
+Return the paginated list of assignments for the specified user and course.
+Return a vector of [`Assignment`](@ref)s and a dictionary with page data.
+
+**Canvas API documentation**:
+[List assignments for user(`GET /api/v1/users/:user_id/courses/:course_id/assignments`)]
+(https://canvas.instructure.com/doc/api/assignments#method.assignments_api.user_index)
 """
 function assignments(u::User, c::Course; kwargs...)
     json, page_data = paged_request("GET", "/api/v1$(Internals.pid(u))$(Internals.pid(c))/assignments"; kwargs...)
@@ -52,9 +63,11 @@ end
 """
     Canvas.assignment(c::Course, a::Assignment; kwargs...) -> Assignment
 
- - Request endpoint: `GET /api/v1/courses/:course_id/assignments/:id`
- - Canvas API documentation:
-   [*Get a single assignment*](https://canvas.instructure.com/doc/api/assignments#method.assignments_api.show)
+Return the assignment given by id. Return an [`Assignment`](@ref).
+
+**Canvas API documentation**:
+[Get a single assignment (`GET /api/v1/courses/:course_id/assignments/:id`)]
+(https://canvas.instructure.com/doc/api/assignments#method.assignments_api.show)
 """
 function assignment(c::Course, a::Assignment; kwargs...)
     json = request("GET", "/api/v1$(Internals.pid(c))$(Internals.pid(a))"; kwargs...)
@@ -64,9 +77,11 @@ end
 """
     Canvas.create_assignment(c::Course, a::Assignment; kwargs...) -> Assignment
 
- - Request endpoint: `POST /api/v1/courses/:course_id/assignments`
- - Canvas API documentation:
-   [*Create an assignment*](https://canvas.instructure.com/doc/api/assignments#method.assignments_api.create)
+Create a new assignment for the course and return the details. Return an [`Assignment`](@ref).
+
+**Canvas API documentation**:
+[Create an assignment (`POST /api/v1/courses/:course_id/assignments`)]
+(https://canvas.instructure.com/doc/api/assignments#method.assignments_api.create)
 """
 function create_assignment(c::Course; kwargs...)
     json = request("POST", "/api/v1$(Internals.pid(c))/assignments"; kwargs...)
@@ -76,9 +91,11 @@ end
 """
     Canvas.update_assignment(c::Course, a::Assignment; kwargs...) -> Assignment
 
- - Request endpoint: `PUT /api/v1/courses/:course_id/assignments/:id`
- - Canvas API documentation:
-   [*Edit an assignment*](https://canvas.instructure.com/doc/api/assignments#method.assignments_api.update)
+Modify an existing assignment and return the new details. Return an [`Assignment`](@ref).
+
+**Canvas API documentation**:
+[Edit an assignment (`PUT /api/v1/courses/:course_id/assignments/:id`)]
+(https://canvas.instructure.com/doc/api/assignments#method.assignments_api.update)
 """
 function update_assignment(c::Course, a::Assignment; kwargs...)
     json = request("PUT", "/api/v1$(Internals.pid(c))$(Internals.pid(a))"; kwargs...)
@@ -88,9 +105,12 @@ end
 """
     Canvas.assignment_overrides(c::Course, a::Assignment; kwargs...) -> Vector{AssignmentOverride}, page_data
 
- - Request endpoint: `GET /api/v1/courses/:course_id/assignments/:assignment_id/overrides`
- - Canvas API documentation:
-   [*List assignment overrides*](https://canvas.instructure.com/doc/api/assignments#method.assignment_overrides.index)
+Return the paginated list of overrides for this course and assignment.
+Return a vector of [`AssignmentOverride`](@ref)s and a dictionary with page data.
+
+**Canvas API documentation**:
+[List assignment overrides (`GET /api/v1/courses/:course_id/assignments/:assignment_id/overrides`)]
+(https://canvas.instructure.com/doc/api/assignments#method.assignment_overrides.index)
 """
 function assignment_overrides(c::Course, a::Assignment; kwargs...)
     json, page_data = paged_request("GET", "/api/v1$(Internals.pid(c))$(Internals.pid(a))/overrides"; kwargs...)
@@ -100,9 +120,11 @@ end
 """
     Canvas.assignment_override(c::Course, a::Assignment, o::AssignmentOverride; kwargs...) -> AssignmentOverride
 
- - Request endpoint: `GET /api/v1/courses/:course_id/assignments/:assignment_id/overrides/:id`
- - Canvas API documentation:
-   [*Get a single assignment overrides*](https://canvas.instructure.com/doc/api/assignments#method.assignment_overrides.show)
+Return the details of override specified by id. Return an [`AssignmentOverride`](@ref).
+
+**Canvas API documentation**:
+[Get a single assignment overrides (`GET /api/v1/courses/:course_id/assignments/:assignment_id/overrides/:id`)]
+(https://canvas.instructure.com/doc/api/assignments#method.assignment_overrides.show)
 """
 function assignment_override(c::Course, a::Assignment, o::AssignmentOverride; kwargs...)
     json = request("GET", "/api/v1$(Internals.pid(c))$(Internals.pid(a))$(Internals.pid(o))"; kwargs...)
@@ -112,12 +134,14 @@ end
 """
     Canvas.assignment_override(co::Union{Group,Section}, a::Assignment; kwargs...) -> AssignmentOverride
 
-**Request endpoints:**
- - `GET /api/v1/groups/:group_id/assignments/:assignment_id/override`
- - `GET /api/v1/sections/:course_section_id/assignments/:assignment_id/override`
- - Canvas API documentation:
-    - [*Redirect to the assignment override for a group*](https://canvas.instructure.com/doc/api/assignments#method.assignment_overrides.group_alias)
- - [*Redirect to the assignment override for a section*](https://canvas.instructure.com/doc/api/assignments#method.assignment_overrides.section_alias)
+Return the override for the given group or section associated with the assignment (404 otherwise).
+Return an [`AssignmentOverride`](@ref).
+
+**Canvas API documentation**:
+ - [Redirect to the assignment override for a group (`GET /api/v1/groups/:group_id/assignments/:assignment_id/override`)]
+   (https://canvas.instructure.com/doc/api/assignments#method.assignment_overrides.group_alias)
+ - [Redirect to the assignment override for a section (`GET /api/v1/sections/:course_section_id/assignments/:assignment_id/override`)]
+   (https://canvas.instructure.com/doc/api/assignments#method.assignment_overrides.section_alias)
 """
 function assignment_override(co::Union{Group,Section}, a::Assignment; kwargs...)
     json = request("GET", "/api/v1$(Internals.pid(co))$(Internals.pid(a))/override"; kwargs...)
@@ -127,9 +151,12 @@ end
 """
     Canvas.create_assignment_override(c::Course, a::Assignment; kwargs...) -> AssignmentOverride
 
- - Request endpoint: `POST /api/v1/courses/:course_id/assignments/:assignment_id/overrides`
- - Canvas API documentation:
-   [*Create an assignment override*](https://canvas.instructure.com/doc/api/assignments#method.assignment_overrides.create)
+Create an assignment override. One of `student_ids`, `group_id` or `course_section_id` must be present,
+see API specification for details. Return the [`AssignmentOverride`](@ref).
+
+**Canvas API documentation**:
+[Create an assignment override (`POST /api/v1/courses/:course_id/assignments/:assignment_id/overrides`)]
+(https://canvas.instructure.com/doc/api/assignments#method.assignment_overrides.create)
 """
 function create_assignment_override(c::Course, a::Assignment; kwargs...)
     json = request("POST", "/api/v1$(Internals.pid(c))$(Internals.pid(a))/overrides"; kwargs...)
@@ -139,9 +166,12 @@ end
 """
     Canvas.update_assignment_override(c::Course, a::Assignment, o::AssignmentOverride; kwargs...) -> AssignmentOverride
 
- - Request endpoint: `PUT /api/v1/courses/:course_id/assignments/:assignment_id/overrides/:id`
- - Canvas API documentation:
-   [*Update an assignment override*](https://canvas.instructure.com/doc/api/assignments#method.assignment_overrides.update)
+Update the assignment override. All current overriden values must be supplied if the should
+be retained, see API specification for details. Return the [`AssignmentOverride`](@ref).
+
+**Canvas API documentation**:
+[Update an assignment override (`PUT /api/v1/courses/:course_id/assignments/:assignment_id/overrides/:id`)]
+(https://canvas.instructure.com/doc/api/assignments#method.assignment_overrides.update)
 """
 function update_assignment_override(c::Course, a::Assignment, o::AssignmentOverride; kwargs...)
     json = request("PUT", "/api/v1$(Internals.pid(c))$(Internals.pid(a))$(Internals.pid(o))"; kwargs...)
@@ -151,9 +181,11 @@ end
 """
     Canvas.delete_assignment_override(c::Course, a::Assignment, o::AssignmentOverride; kwargs...) -> AssignmentOverride
 
- - Request endpoint: `DELETE /api/v1/courses/:course_id/assignments/:assignment_id/overrides/:id`
- - Canvas API documentation:
-   [*Update an assignment override*](https://canvas.instructure.com/doc/api/assignments#method.assignment_overrides.update)
+Delete and override and return the former details. Return an [`AssignmentOverride`](@ref).
+
+**Canvas API documentation**:
+[Update an assignment override (`DELETE /api/v1/courses/:course_id/assignments/:assignment_id/overrides/:id`)]
+(https://canvas.instructure.com/doc/api/assignments#method.assignment_overrides.update)
 """
 function delete_assignment_override(c::Course, a::Assignment, o::AssignmentOverride; kwargs...)
     json = request("DELETE", "/api/v1$(Internals.pid(c))$(Internals.pid(a))$(Internals.pid(o))"; kwargs...)
