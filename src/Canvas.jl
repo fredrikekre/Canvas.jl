@@ -7,6 +7,8 @@ module Canvas
 
 import HTTP, JSON, Dates, TimeZones
 
+include("Internals.jl")
+
 ####################
 ## Authentication ##
 ####################
@@ -51,12 +53,12 @@ function getapi()
     end
 end
 
-###############
-## Utilities ##
-###############
+################################
+## Internal request utilities ##
+################################
 
 # Set Authorization and User-Agent
-function canvas_headers(headers=nothing; auth=nothing)
+function Internals.canvas_headers(headers=nothing; auth=nothing)
     if headers === nothing
         headers = Dict{String,String}()
     else
@@ -71,24 +73,28 @@ function canvas_headers(headers=nothing; auth=nothing)
     return headers
 end
 
-# Process parameters before sending them to HTTP.jl
-process_params(params::Union{AbstractString,Nothing}) = params
-function process_params(params)
+# Preprocess parameters before sending them to HTTP.jl
+Internals.process_params(params::Union{AbstractString,Nothing}) = params
+function Internals.process_params(params)
     params′ = Dict{String,Any}()
     # Assume it iterates pairs
     for (k, v) in params
-        params′[process_key(k)] = process_val(v)
+        params′[Internals.process_key(k)] = Internals.process_val(v)
     end
     return params′
 end
-process_key(k) = string(k)
-process_val(v) = string(v)
-process_val(v::AbstractVector) = map(process_val, v)
-function process_val(zdt::TimeZones.ZonedDateTime)
+Internals.process_key(k) = string(k)
+Internals.process_val(v) = string(v)
+Internals.process_val(v::AbstractVector) = map(Internals.process_val, v)
+function Internals.process_val(zdt::TimeZones.ZonedDateTime)
     zdt = TimeZones.astimezone(zdt, TimeZones.tz"Z")
     str = Dates.format(zdt, Dates.dateformat"yyyy-mm-ddTHH:MM:SSZ")
     return str
 end
+
+############################
+## Public request methods ##
+############################
 
 """
     Canvas.request(method, endpoint; kwargs...) -> JSON
@@ -105,11 +111,13 @@ Remaining keyword arguments are passed to
 [`HTTP.request`](https://juliaweb.github.io/HTTP.jl/stable/public_interface/#Requests-1).
 
 **Examples**
+Get a single course
 ```julia
-# Get a single course
 Canvas.request("GET", "/api/v1/courses/:course_id")
+```
 
-# Post an announcement
+Post an announcement
+```julia
 params = Dict(
     "title" => "Hello there!",
     "message" => "General Kenobi!",
@@ -119,16 +127,16 @@ Canvas.request("POST", "/api/v1/courses/:course_id/discussion_topics"; params=pa
 ```
 """
 function request(method::String, endpoint::String=""; kwargs...)
-    r = _request(method, endpoint; kwargs...)
+    r = Internals.request(method, endpoint; kwargs...)
     json = JSON.parse(IOBuffer(HTTP.payload(r)))
     return json
 end
 # Internal request method, returning a HTTP.Response
-function _request(method::String, endpoint::String=""; api::CanvasAPI=getapi(),
-                 headers=nothing, params=nothing, kwargs...)
-    headers = canvas_headers(headers; auth=api.auth)
+function Internals.request(method::String, endpoint::String=""; api::CanvasAPI=getapi(),
+                           headers=nothing, params=nothing, kwargs...)
+    headers = Internals.canvas_headers(headers; auth=api.auth)
     uri = HTTP.merge(api.uri, path=endpoint)
-    params = process_params(params)
+    params = Internals.process_params(params)
     r = HTTP.request(method, uri, headers; query=params, kwargs...)
     return r
 end
@@ -146,19 +154,20 @@ Canvas.request("GET", "/api/v1/courses")
 ```
 """
 function paged_request(method::String, endpoint::String=""; kwargs...)
-    rs, page_data = _paged_request(method, endpoint; kwargs...)
+    rs, page_data = Internals.paged_request(method, endpoint; kwargs...)
     # Assume we get an JSON array in each request
     json = mapreduce(r->JSON.parse(IOBuffer(HTTP.payload(r))), append!, rs; init=Dict{String,Any}[])
     return json, page_data
 end
 # Internal request method for pagination, returning Vector{HTTP.Response} and page_data
-function _paged_request(method::String, endpoint::String=""; api::CanvasAPI=getapi(),
-                       headers=nothing, page_limit=typemax(Int),
-                       start_page="", params=nothing, kwargs...)
-    headers = canvas_headers(headers; auth=api.auth)
+function Internals.paged_request(
+        method::String, endpoint::String=""; api::CanvasAPI=getapi(),
+        headers=nothing, page_limit=typemax(Int),
+        start_page="", params=nothing, kwargs...)
+    headers = Internals.canvas_headers(headers; auth=api.auth)
     if isempty(start_page) # first request
         uri = HTTP.merge(api.uri, path=endpoint)
-        params = process_params(params)
+        params = Internals.process_params(params)
         r = HTTP.request(method, uri, headers; query=params, kwargs...)
     else
         # isempty(endpoint) || throw(ArgumentError("`start_page` kwarg is incompatible with `endpoint` argument"))
@@ -201,6 +210,8 @@ include("endpoints/assignments.jl")
 include("endpoints/courses.jl")
 include("endpoints/files.jl")
 include("endpoints/submissions.jl")
+include("endpoints/submission_comments.jl")
+include("endpoints/groups.jl")
 
 function download(f::File, path=tempdir(); kwargs...)
     mkpath(path)
@@ -209,18 +220,18 @@ function download(f::File, path=tempdir(); kwargs...)
 end
 
 function announcements(c; params=nothing, kwargs...)
-    params = something(params, Dict("context_codes"=>"course_$(id(c))"))
+    params = something(params, Dict("context_codes"=>"course_$(Internals.id(c))"))
     json, page_data = paged_request("GET", "/api/v1/announcements"; params=params, kwargs...)
     return DiscussionTopic.(json), page_data
 end
-function create_announcement(c; kwargs...)
-    json = request("POST", "/api/v1/courses/$(id(c))/discussion_topics"; kwargs...)
+function create_announcement(c::Course; kwargs...)
+    json = request("POST", "/api/v1$(Internals.pid(c))/discussion_topics"; kwargs...)
     return DiscussionTopic(json)
 end
 
 function create_conversation(c; params::Dict, kwargs...)
     if !haskey(params, "recipients[]")
-        params = Dict("recipients[]"=>["$(id(c))"], params...)
+        params = Dict("recipients[]"=>["$(Internals.id(c))"], params...)
     end
     json = request("POST", "/api/v1/conversations"; params=params, kwargs...)
     @assert length(json) == 1
@@ -233,7 +244,7 @@ function whoami(; kwargs...)
 end
 
 function user(u; kwargs...)
-    json = request("GET", "/api/v1/users/$(id(u))"; kwargs...)
+    json = request("GET", "/api/v1/users/$(Internals.id(u))"; kwargs...)
     return User(json)
 end
 
@@ -243,7 +254,7 @@ function conversations(; kwargs...)
 end
 
 function conversation(c; kwargs...)
-    json = request("GET", "/api/v1/conversations/$(id(c))"; kwargs...)
+    json = request("GET", "/api/v1$(Internals.pid(c))"; kwargs...)
     return Conversation(json)
 end
 

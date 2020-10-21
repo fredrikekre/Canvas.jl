@@ -13,7 +13,7 @@
 [*Get quota information*](https://canvas.instructure.com/doc/api/files#method.files.api_quota)
 """
 function quota(co::Union{Course,Group,User}; kwargs...)
-    json = request("GET", "/api/v1$(pid(co))/files/quota"; kwargs...)
+    json = request("GET", "/api/v1$(Internals.pid(co))/files/quota"; kwargs...)
     return json
 end
 
@@ -30,7 +30,7 @@ end
 [*List files*](https://canvas.instructure.com/doc/api/files#method.files.api_index)
 """
 function files(co::Union{Course,Group,User}; kwargs...)
-    json, page_data = paged_request("GET", "/api/v1$(pid(co))/files"; kwargs...)
+    json, page_data = paged_request("GET", "/api/v1$(Internals.pid(co))/files"; kwargs...)
     return File.(json), page_data
 end
 
@@ -43,7 +43,7 @@ end
 [*Get public inline preview url*](https://canvas.instructure.com/doc/api/files#method.files.public_url)
 """
 function public_url(f::File; kwargs...)
-    json = request("GET", "/api/v1$(pid(f))/public_url"; kwargs...)
+    json = request("GET", "/api/v1$(Internals.pid(f))/public_url"; kwargs...)
     return json
 end
 
@@ -56,7 +56,7 @@ end
 [*Get file*](https://canvas.instructure.com/doc/api/files#method.files.api_show)
 """
 function file(f::File; kwargs...)
-    json = request("GET", "/api/v1$(pid(f))"; kwargs...)
+    json = request("GET", "/api/v1$(Internals.pid(f))"; kwargs...)
     return File(json)
 end
 """
@@ -71,7 +71,7 @@ end
 [*Get file*](https://canvas.instructure.com/doc/api/files#method.files.api_show)
 """
 function file(co::Union{Course,Group,User}, f::File; kwargs...)
-    json = request("GET", "/api/v1$(pid(co))$(pid(f))"; kwargs...)
+    json = request("GET", "/api/v1$(Internals.pid(co))$(Internals.pid(f))"; kwargs...)
     return File(json)
 end
 
@@ -84,7 +84,7 @@ end
 [*Update file*](https://canvas.instructure.com/doc/api/files#method.files.api_update)
 """
 function update_file(f::File; kwargs...)
-    json = request("PUT", "/api/v1$(pid(f))"; kwargs...)
+    json = request("PUT", "/api/v1$(Internals.pid(f))"; kwargs...)
     return File(json)
 end
 
@@ -97,7 +97,7 @@ end
 [*Delete file*](https://canvas.instructure.com/doc/api/files#method.files.destroy)
 """
 function delete_file(f::File; kwargs...)
-    json = request("DELETE", "/api/v1$(pid(f))"; kwargs...)
+    json = request("DELETE", "/api/v1$(Internals.pid(f))"; kwargs...)
     return File(json)
 end
 
@@ -110,7 +110,7 @@ end
 [*List folders*](https://canvas.instructure.com/doc/api/files#method.folders.api_index)
 """
 function folders(f::Folder; kwargs...)
-    json, page_data = paged_request("GET", "/api/v1$(pid(f))/folders"; kwargs...)
+    json, page_data = paged_request("GET", "/api/v1$(Internals.pid(f))/folders"; kwargs...)
     return Folder.(json), page_data
 end
 
@@ -126,7 +126,7 @@ end
 [*List all folders*](https://canvas.instructure.com/doc/api/files#method.folders.list_all_folders)
 """
 function folders(co::Union{Course,Group,User}; kwargs...)
-    json, page_data = paged_request("GET", "/api/v1$(pid(co))/folders"; kwargs...)
+    json, page_data = paged_request("GET", "/api/v1$(Internals.pid(co))/folders"; kwargs...)
     return Folder.(json), page_data
 end
 
@@ -143,7 +143,7 @@ end
 """
 function resolve_path(co::Union{Course,Group,User}, path=""; kwargs...)
     path = isempth(path) ? "" : "/$path"
-    json, page_data = paged_request("GET", "/api/v1$(pid(co))/folders/by_path$(path)"; kwargs...)
+    json, page_data = paged_request("GET", "/api/v1$(Internals.pid(co))/folders/by_path$(path)"; kwargs...)
     return Folder.(json), page_data
 end
 
@@ -156,7 +156,7 @@ end
 [*Get folder*](https://canvas.instructure.com/doc/api/files#method.folders.show)
 """
 function folder(f::Folder; kwargs...)
-    json = request("GET", "/api/v1$(pid(f))"; kwargs...)
+    json = request("GET", "/api/v1$(Internals.pid(f))"; kwargs...)
     return Folder(json)
 end
 """
@@ -171,7 +171,7 @@ end
 [*Get folder*](https://canvas.instructure.com/doc/api/files#method.folders.show)
 """
 function folder(co::Union{Course,Group,User}, f::Folder; kwargs...)
-    json = request("GET", "/api/v1$(pid(co))$(pid(f))"; kwargs...)
+    json = request("GET", "/api/v1$(Internals.pid(co))$(Internals.pid(f))"; kwargs...)
     return Folder(json)
 end
 
@@ -184,7 +184,7 @@ end
 [*Update folder*](https://canvas.instructure.com/doc/api/files#method.folders.update)
 """
 function update_folder(f::Folder; kwargs...)
-    json = request("PUT", "/api/v1$(pid(f))"; kwargs...)
+    json = request("PUT", "/api/v1$(Internals.pid(f))"; kwargs...)
     return Folder(json)
 end
 
@@ -201,7 +201,7 @@ end
 [*Create folder*](https://canvas.instructure.com/doc/api/files#method.folders.create)
 """
 function create_folder(f::Folder; kwargs...)
-    json = request("POST", "/api/v1$(pid(f))/folders"; kwargs...)
+    json = request("POST", "/api/v1$(Internals.pid(f))/folders"; kwargs...)
     return Folder(json)
 end
 
@@ -214,7 +214,7 @@ end
 [*Delete folder*](https://canvas.instructure.com/doc/api/files#method.folders.api_destroy)
 """
 function delete_folder(f::Folder; kwargs...)
-    json = request("DELETE", "/api/v1$(pid(f))"; kwargs...)
+    json = request("DELETE", "/api/v1$(Internals.pid(f))"; kwargs...)
     return json # ??
 end
 
@@ -228,7 +228,7 @@ end
 
 """
 function upload_file(f::Folder, file; kwargs...)
-    return _upload_file("/api/v1/$(pid(f))/files", file; kwargs...)
+    return Internals.upload_file("/api/v1$(Internals.pid(f))/files", file; kwargs...)
 end
 
 """
@@ -240,7 +240,7 @@ end
 [*Copy a file*](https://canvas.instructure.com/doc/api/files#method.folders.copy_file)
 """
 function copy_file(f::Folder; kwargs...)
-    json = request("POST", "/api/v1$(pid(f))/copy_file"; kwargs...)
+    json = request("POST", "/api/v1$(Internals.pid(f))/copy_file"; kwargs...)
     return File(json)
 end
 
@@ -253,7 +253,7 @@ end
 [*Copy a folder*](https://canvas.instructure.com/doc/api/files#method.folders.copy_folder)
 """
 function copy_folder(f::Folder; kwargs...)
-    json = request("POST", "/api/v1$(pid(f))/copy_folder"; kwargs...)
+    json = request("POST", "/api/v1$(Internals.pid(f))/copy_folder"; kwargs...)
     return Folder(json)
 end
 
@@ -268,7 +268,7 @@ end
 [*Get uploaded media folder for user*](https://canvas.instructure.com/doc/api/files#method.folders.media_folder)
 """
 function media_folder(co::Union{Course,Group}; kwargs...)
-    json = request("GET", "/api/v1$(pid(co))/folders/media"; kwargs...)
+    json = request("GET", "/api/v1$(Internals.pid(co))/folders/media"; kwargs...)
     return Folder(json)
 end
 
@@ -284,7 +284,7 @@ end
 [*Set usage rights*](https://canvas.instructure.com/doc/api/files#method.usage_rights.set_usage_rights)
 """
 function usage_rights(co::Union{Course,Group,User}; kwargs...)
-    json = request("PUT", "/api/v1$(pid(co))/usage_rights"; kwargs...)
+    json = request("PUT", "/api/v1$(Internals.pid(co))/usage_rights"; kwargs...)
     return UsageRights(json)
 end
 
@@ -300,7 +300,7 @@ end
 [*Remove usage rights*](https://canvas.instructure.com/doc/api/files#method.usage_rights.remove_usage_rights)
 """
 function remove_usage_rights(co::Union{Course,Group,User}; kwargs...)
-    json = request("DELETE", "/api/v1$(pid(co))/usage_rights"; kwargs...)
+    json = request("DELETE", "/api/v1$(Internals.pid(co))/usage_rights"; kwargs...)
     return json # ??
 end
 
@@ -316,6 +316,6 @@ end
 [*List licenses*](https://canvas.instructure.com/doc/api/files#method.usage_rights.licenses)
 """
 function licenses(co::Union{Course,Group,User}; kwargs...)
-    json, page_data = paged_request("GET", "/api/v1$(pid(co))/content_licenses"; kwargs...)
+    json, page_data = paged_request("GET", "/api/v1$(Internals.pid(co))/content_licenses"; kwargs...)
     return License.(json), page_data
 end

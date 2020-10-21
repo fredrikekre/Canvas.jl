@@ -19,7 +19,7 @@ end
 (https://canvas.instructure.com/doc/api/courses#method.courses.user_index)
 """
 function courses(user::User; kwargs...)
-    json, page_data = paged_request("GET", "/api/v1/users/$(id(user))/courses"; kwargs...)
+    json, page_data = paged_request("GET", "/api/v1$(Internals.pid(user))/courses"; kwargs...)
     return Course.(json), page_data
 end
 
@@ -30,7 +30,7 @@ end
 (https://canvas.instructure.com/doc/api/courses#method.courses.create)
 """
 function create_course(acc::Account; kwargs...)
-    json = request("POST", "/api/v1/accounts/$(id(acc))/courses"; kwargs...)
+    json = request("POST", "/api/v1$(Internals.pid(acc))/courses"; kwargs...)
     return Course(json)
 end
 
@@ -41,7 +41,7 @@ Canvas API documentation: [Upload a file to a course (`POST /api/v1/courses/:cou
 (https://canvas.instructure.com/doc/api/courses.html#method.courses.create_file)
 """
 function upload_file(c::Course, file; kwargs...)
-    return _upload_file("/api/v1/$(pid(c))/files", file; kwargs...)
+    return Internals.upload_file("/api/v1$(Internals.pid(c))/files", file; kwargs...)
 end
 
 """
@@ -54,7 +54,7 @@ end
    [*List users in course*](https://canvas.instructure.com/doc/api/courses#method.courses.users)
 """
 function users(course::Course; kwargs...)
-    json, page_data = paged_request("GET", "/api/v1/courses/$(id(course))/users"; kwargs...)
+    json, page_data = paged_request("GET", "/api/v1$(Internals.pid(course))/users"; kwargs...)
     return User.(json), page_data
 end
 
@@ -66,7 +66,7 @@ end
    [*List recently logged in students*](https://canvas.instructure.com/doc/api/courses#method.courses.recent_students)
 """
 function recent_students(course::Course; kwargs...)
-    json, page_data = paged_request("GET", "/api/v1/courses/$(id(course))/recent_students"; kwargs...)
+    json, page_data = paged_request("GET", "/api/v1$(Internals.pid(course))/recent_students"; kwargs...)
     return User.(json), page_data
 end
 
@@ -78,7 +78,7 @@ end
    [*Get single user*](https://canvas.instructure.com/doc/api/courses#method.courses.user)
 """
 function user(course::Course, user::User; kwargs...)
-    json = request("GET", "/api/v1/courses/$(id(course))/users/$(id(user))"; kwargs...)
+    json = request("GET", "/api/v1$(Internals.pid(course))$(Internals.pid(user))"; kwargs...)
     return User(json)
 end
 
@@ -90,7 +90,7 @@ end
    [*Search for content share users*](https://canvas.instructure.com/doc/api/courses#method.courses.content_share_users)
 """
 function content_share_users(course::Course; kwargs...)
-    json, page_data = paged_request("GET", "/api/v1/courses/$(id(course))/content_share_users"; kwargs...)
+    json, page_data = paged_request("GET", "/api/v1$(Internals.pid(course))/content_share_users"; kwargs...)
     return User.(json), page_data
 end
 
@@ -102,7 +102,7 @@ end
    [*Preview processed html*](https://canvas.instructure.com/doc/api/courses#method.courses.preview_html)
 """
 function preview_html(course::Course; kwargs...)
-    json = request("GET", "/api/v1/courses/$(id(course))/preview_html"; kwargs...)
+    json = request("GET", "/api/v1$(Internals.pid(course))/preview_html"; kwargs...)
     return json
 end
 
@@ -117,7 +117,7 @@ end
 and [Course activity stream summary](https://canvas.instructure.com/doc/api/courses#method.courses.activity_stream_summary)
 """
 function activity_stream(course::Course; summary=false, kwargs...)
-    endpoint = "/api/v1/courses/$(id(course))/activity_stream"
+    endpoint = "/api/v1$(Internals.pid(course))/activity_stream"
     summary && (endpoint *= "/summary")
     json, page_data = paged_request("GET", endpoint; kwargs...)
     return json, page_data
@@ -131,7 +131,7 @@ end
    [*Course TODO items*](https://canvas.instructure.com/doc/api/courses#method.courses.destroy)
 """
 function todo(course::Course; kwargs...)
-    json, page_data = paged_request("GET", "/api/v1/courses/$(id(course))/todo"; kwargs...)
+    json, page_data = paged_request("GET", "/api/v1$(Internals.pid(course))/todo"; kwargs...)
     return json, page_data
 end
 
@@ -143,7 +143,7 @@ end
    [Delete/Conclude a course](https://canvas.instructure.com/doc/api/courses#method.courses.destroy)
 """
 function delete_course(course::Course; kwargs...)
-    json = request("DELETE", "/api/v1/courses/$(id(course))"; kwargs...)
+    json = request("DELETE", "/api/v1$(Internals.pid(course))"; kwargs...)
     return json
 end
 
@@ -155,7 +155,7 @@ end
    [*Get course settings*](https://canvas.instructure.com/doc/api/courses#method.courses.api_settings)
 """
 function settings(course::Course; kwargs...)
-    json = request("GET", "/api/v1/courses/$(id(course))/settings"; kwargs...)
+    json = request("GET", "/api/v1$(Internals.pid(course))/settings"; kwargs...)
     return json
 end
 
@@ -167,7 +167,7 @@ end
    [*Update course settings*](https://canvas.instructure.com/doc/api/courses#method.courses.update_settings)
 """
 function update_settings(course::Course; kwargs...)
-    json = request("PUT", "/api/v1/courses/$(id(course))/settings"; kwargs...)
+    json = request("PUT", "/api/v1$(Internals.pid(course))/settings"; kwargs...)
     return json
 end
 
@@ -179,7 +179,7 @@ end
    [*Get a single course*](https://canvas.instructure.com/doc/api/courses#method.courses.show)
 """
 function course(course::Course; kwargs...)
-    json = request("GET", "/api/v1/courses/$(id(course))"; kwargs...)
+    json = request("GET", "/api/v1$(Internals.pid(course))"; kwargs...)
     return Course(json)
 end
 
@@ -191,7 +191,7 @@ end
    [*Update a course*](https://canvas.instructure.com/doc/api/courses#method.courses.update)
 """
 function update_course(course::Course; kwargs...)
-    json = request("PUT", "/api/v1/courses/$(id(course))"; kwargs...)
+    json = request("PUT", "/api/v1$(Internals.pid(course))"; kwargs...)
     return Course(json) # Maybe? Or just return json?
 end
 
@@ -203,7 +203,7 @@ end
    [*Update courses*](https://canvas.instructure.com/doc/api/courses#method.courses.batch_update)
 """
 function update_courses(acc::Account; kwargs...)
-    json = request("PUT", "/api/v1/accounts/$(id(acc))/courses"; kwargs...)
+    json = request("PUT", "/api/v1$(Internals.pid(acc))/courses"; kwargs...)
     return Progress(json)
 end
 
@@ -215,7 +215,7 @@ end
    [*Reset a course*](https://canvas.instructure.com/doc/api/courses#method.courses.reset_content)
 """
 function reset_content(course::Course; kwargs...)
-    json = request("POST", "/api/v1/courses/$(id(course))/reset_content"; kwargs...)
+    json = request("POST", "/api/v1$(Internals.pid(course))/reset_content"; kwargs...)
     return Course(json)
 end
 
@@ -227,7 +227,7 @@ end
    [*Get effective due dates*](https://canvas.instructure.com/doc/api/courses#method.courses.effective_due_dates)
 """
 function effective_due_dates(course::Course; kwargs...)
-    json = request("GET", "/api/v1/courses/$(id(course))/effective_due_dates"; kwargs...)
+    json = request("GET", "/api/v1$(Internals.pid(course))/effective_due_dates"; kwargs...)
     return json
 end
 
@@ -239,7 +239,7 @@ end
    [*Permissions*](https://canvas.instructure.com/doc/api/courses#method.courses.permissions)
 """
 function permissions(course::Course; kwargs...)
-    json = request("GET", "/api/v1/courses/$(id(course))/permissions"; kwargs...)
+    json = request("GET", "/api/v1$(Internals.pid(course))/permissions"; kwargs...)
     return json
 end
 

@@ -9,7 +9,7 @@
    [*Delete an assignment*](https://canvas.instructure.com/doc/api/assignments#method.assignments.destroy)
 """
 function delete_assignment(c::Course, a::Assignment; kwargs...)
-    json = request("DELETE", "/api/v1$(pid(c))$(pid(a))"; kwargs...)
+    json = request("DELETE", "/api/v1$(Internals.pid(c))$(Internals.pid(a))"; kwargs...)
     return Assignment(json)
 end
 
@@ -21,7 +21,7 @@ end
    [*List assignments*](https://canvas.instructure.com/doc/api/assignments#method.assignments_api.index)
 """
 function assignments(c::Course; kwargs...)
-    json, page_data = paged_request("GET", "/api/v1$(pid(c))/assignments"; kwargs...)
+    json, page_data = paged_request("GET", "/api/v1$(Internals.pid(c))/assignments"; kwargs...)
     return Assignment.(json), page_data
 end
 # TODO collapse ^ and below
@@ -33,7 +33,7 @@ end
    [*List assignments*](https://canvas.instructure.com/doc/api/assignments#method.assignments_api.index)
 """
 function assignments(c::Course, a::AssignmentGroup; kwargs...)
-    json, page_data = paged_request("GET", "/api/v1$(pid(c))$(pid(a))/assignments"; kwargs...)
+    json, page_data = paged_request("GET", "/api/v1$(Internals.pid(c))$(Internals.pid(a))/assignments"; kwargs...)
     return Assignment.(json), page_data
 end
 
@@ -45,7 +45,7 @@ end
    [*List assignments for user*](https://canvas.instructure.com/doc/api/assignments#method.assignments_api.user_index)
 """
 function assignments(u::User, c::Course; kwargs...)
-    json, page_data = paged_request("GET", "/api/v1$(pid(u))$(pid(c))/assignments"; kwargs...)
+    json, page_data = paged_request("GET", "/api/v1$(Internals.pid(u))$(Internals.pid(c))/assignments"; kwargs...)
     return Assignment.(json), page_data
 end
 
@@ -57,7 +57,7 @@ end
    [*Get a single assignment*](https://canvas.instructure.com/doc/api/assignments#method.assignments_api.show)
 """
 function assignment(c::Course, a::Assignment; kwargs...)
-    json = request("GET", "/api/v1$(pid(c))$(pid(a))"; kwargs...)
+    json = request("GET", "/api/v1$(Internals.pid(c))$(Internals.pid(a))"; kwargs...)
     return Assignment(json)
 end
 
@@ -69,7 +69,7 @@ end
    [*Create an assignment*](https://canvas.instructure.com/doc/api/assignments#method.assignments_api.create)
 """
 function create_assignment(c::Course; kwargs...)
-    json = request("POST", "/api/v1$(pid(c))/assignments"; kwargs...)
+    json = request("POST", "/api/v1$(Internals.pid(c))/assignments"; kwargs...)
     return Assignment(json)
 end
 
@@ -81,7 +81,7 @@ end
    [*Edit an assignment*](https://canvas.instructure.com/doc/api/assignments#method.assignments_api.update)
 """
 function update_assignment(c::Course, a::Assignment; kwargs...)
-    json = request("PUT", "/api/v1$(pid(c))$(pid(a))"; kwargs...)
+    json = request("PUT", "/api/v1$(Internals.pid(c))$(Internals.pid(a))"; kwargs...)
     return Assignment(json)
 end
 
@@ -93,7 +93,7 @@ end
    [*List assignment overrides*](https://canvas.instructure.com/doc/api/assignments#method.assignment_overrides.index)
 """
 function assignment_overrides(c::Course, a::Assignment; kwargs...)
-    json, page_data = paged_request("GET", "/api/v1$(pid(c))$(pid(a))/overrides"; kwargs...)
+    json, page_data = paged_request("GET", "/api/v1$(Internals.pid(c))$(Internals.pid(a))/overrides"; kwargs...)
     return AssignmentOverride.(json), page_data
 end
 
@@ -105,7 +105,7 @@ end
    [*Get a single assignment overrides*](https://canvas.instructure.com/doc/api/assignments#method.assignment_overrides.show)
 """
 function assignment_override(c::Course, a::Assignment, o::AssignmentOverride; kwargs...)
-    json = request("GET", "/api/v1$(pid(c))$(pid(a))$(pid(o))"; kwargs...)
+    json = request("GET", "/api/v1$(Internals.pid(c))$(Internals.pid(a))$(Internals.pid(o))"; kwargs...)
     return AssignmentOverride(json)
 end
 
@@ -120,7 +120,7 @@ end
  - [*Redirect to the assignment override for a section*](https://canvas.instructure.com/doc/api/assignments#method.assignment_overrides.section_alias)
 """
 function assignment_override(co::Union{Group,Section}, a::Assignment; kwargs...)
-    json = request("GET", "/api/v1$(pid(co))$(pid(a))/override"; kwargs...)
+    json = request("GET", "/api/v1$(Internals.pid(co))$(Internals.pid(a))/override"; kwargs...)
     return AssignmentOverride(json)
 end
 
@@ -132,7 +132,7 @@ end
    [*Create an assignment override*](https://canvas.instructure.com/doc/api/assignments#method.assignment_overrides.create)
 """
 function create_assignment_override(c::Course, a::Assignment; kwargs...)
-    json = request("POST", "/api/v1$(pid(c))$(pid(a))/overrides"; kwargs...)
+    json = request("POST", "/api/v1$(Internals.pid(c))$(Internals.pid(a))/overrides"; kwargs...)
     return AssignmentOverride(json)
 end
 
@@ -144,7 +144,7 @@ end
    [*Update an assignment override*](https://canvas.instructure.com/doc/api/assignments#method.assignment_overrides.update)
 """
 function update_assignment_override(c::Course, a::Assignment, o::AssignmentOverride; kwargs...)
-    json = request("PUT", "/api/v1$(pid(c))$(pid(a))$(pid(o))"; kwargs...)
+    json = request("PUT", "/api/v1$(Internals.pid(c))$(Internals.pid(a))$(Internals.pid(o))"; kwargs...)
     return AssignmentOverride(json)
 end
 
@@ -156,7 +156,7 @@ end
    [*Update an assignment override*](https://canvas.instructure.com/doc/api/assignments#method.assignment_overrides.update)
 """
 function delete_assignment_override(c::Course, a::Assignment, o::AssignmentOverride; kwargs...)
-    json = request("DELETE", "/api/v1$(pid(c))$(pid(a))$(pid(o))"; kwargs...)
+    json = request("DELETE", "/api/v1$(Internals.pid(c))$(Internals.pid(a))$(Internals.pid(o))"; kwargs...)
     return AssignmentOverride(json)
 end
 

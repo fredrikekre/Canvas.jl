@@ -11,6 +11,6 @@
 
 """
 function upload_file(c::Course, a::Assignment, u::User, file; kwargs...)
-    endpoint = "/api/v1/$(pid(c))$(pid(a))/submissions/$(id(u))/comments/files"
-    return _upload_file(endpoint, file; kwargs...)
+    endpoint = "/api/v1$(Internals.pid(c))$(Internals.pid(a))/submissions/$(Internals.id(u))/comments/files"
+    return Internals.upload_file(endpoint, file; kwargs...)
 end

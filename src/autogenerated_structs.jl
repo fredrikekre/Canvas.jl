@@ -55,7 +55,7 @@ struct CalendarLink <: CanvasObject
     ics::Union{String,Nothing}
 end
 # Disambiguating constructor needed for single field structs
-CalendarLink(data::AbstractDict) = json2canvas(CalendarLink, data)
+CalendarLink(data::AbstractDict) = Internals.json2canvas(CalendarLink, data)
 
 # Term
 struct Term <: CanvasObject
@@ -730,6 +730,7 @@ struct Submission <: CanvasObject
     """The date this submission was posted to the student, or nil if it has
     not been posted."""
     posted_at::Union{TimeZones.ZonedDateTime,Nothing}
+    attachments::Union{Vector{File},Nothing}
 end
 
 # GradingRules
