@@ -9,11 +9,11 @@ makedocs(
     sitename = "Canvas.jl",
     pages = Any[
         "index.md",
-        "API Reference" => [
+        "API Reference" => joinpath.("endpoints", [
             "assignments.md",
             "courses.md",
             "files.md",
-        ]
+        ])
     ]
 )
 
