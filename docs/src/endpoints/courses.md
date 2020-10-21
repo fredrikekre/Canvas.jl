@@ -20,7 +20,7 @@ Canvas.update_settings
 Canvas.delete_course
 Canvas.reset_content
 Canvas.users
-Canvas.user
+Canvas.user(::Canvas.Course, ::Canvas.User)
 Canvas.recent_students
 Canvas.upload_file(::Canvas.Course, ::String)
 Canvas.content_share_users
