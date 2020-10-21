@@ -1,7 +1,8 @@
 """
-    Canvas
+    Canvas.jl
 
-Julia package for interacting with the Canvas API.
+Julia package for interacting with the Canvas LMS API.
+See https://fredrikekre.github.io/Canvas.jl/ for documentation.
 """
 module Canvas
 
@@ -211,63 +212,52 @@ include("endpoints/courses.jl")
 include("endpoints/files.jl")
 include("endpoints/submissions.jl")
 include("endpoints/submission_comments.jl")
-include("endpoints/groups.jl")
+# include("endpoints/groups.jl")
 
-function download(f::File, path=tempdir(); kwargs...)
-    mkpath(path)
-    r = HTTP.download(f.url, joinpath(path, f.display_name); kwargs...)
-    return r
-end
+# function download(f::File, path=tempdir(); kwargs...)
+#     mkpath(path)
+#     r = HTTP.download(f.url, joinpath(path, f.display_name); kwargs...)
+#     return r
+# end
 
-function announcements(c; params=nothing, kwargs...)
-    params = something(params, Dict("context_codes"=>"course_$(Internals.id(c))"))
-    json, page_data = paged_request("GET", "/api/v1/announcements"; params=params, kwargs...)
-    return DiscussionTopic.(json), page_data
-end
-function create_announcement(c::Course; kwargs...)
-    json = request("POST", "/api/v1$(Internals.pid(c))/discussion_topics"; kwargs...)
-    return DiscussionTopic(json)
-end
+# function announcements(c; params=nothing, kwargs...)
+#     params = something(params, Dict("context_codes"=>"course_$(Internals.id(c))"))
+#     json, page_data = paged_request("GET", "/api/v1/announcements"; params=params, kwargs...)
+#     return DiscussionTopic.(json), page_data
+# end
+# function create_announcement(c::Course; kwargs...)
+#     json = request("POST", "/api/v1$(Internals.pid(c))/discussion_topics"; kwargs...)
+#     return DiscussionTopic(json)
+# end
 
-function create_conversation(c; params::Dict, kwargs...)
-    if !haskey(params, "recipients[]")
-        params = Dict("recipients[]"=>["$(Internals.id(c))"], params...)
-    end
-    json = request("POST", "/api/v1/conversations"; params=params, kwargs...)
-    @assert length(json) == 1
-    return Conversation(json[1])
-end
+# function create_conversation(c; params::Dict, kwargs...)
+#     if !haskey(params, "recipients[]")
+#         params = Dict("recipients[]"=>["$(Internals.id(c))"], params...)
+#     end
+#     json = request("POST", "/api/v1/conversations"; params=params, kwargs...)
+#     @assert length(json) == 1
+#     return Conversation(json[1])
+# end
 
-function whoami(; kwargs...)
-    json = request("GET", "/api/v1/users/self"; kwargs...)
-    return User(json)
-end
+# function conversations(; kwargs...)
+#     json, page_data = paged_request("GET", "/api/v1/conversations"; kwargs...)
+#     return Conversation.(json), page_data
+# end
 
-function user(u; kwargs...)
-    json = request("GET", "/api/v1/users/$(Internals.id(u))"; kwargs...)
-    return User(json)
-end
+# function conversation(c; kwargs...)
+#     json = request("GET", "/api/v1$(Internals.pid(c))"; kwargs...)
+#     return Conversation(json)
+# end
 
-function conversations(; kwargs...)
-    json, page_data = paged_request("GET", "/api/v1/conversations"; kwargs...)
-    return Conversation.(json), page_data
-end
-
-function conversation(c; kwargs...)
-    json = request("GET", "/api/v1$(Internals.pid(c))"; kwargs...)
-    return Conversation(json)
-end
-
-
-function download_file(f::File, local_path=mktempdir(); update_period=Inf, kwargs...)
-    if isdir(local_path) # existing directory, append filename
-        local_path = joinpath(local_path, f.filename)
-    elseif !isdir(dirname(local_path)) # a filepath, make sure directory exist
-        error("destination directory does not exist; $(dirname(local_path))")
-    end
-    headers = canvas_headers()
-    r = HTTP.download(f.url, local_path, headers; update_period=update_period, kwargs...)
-    return r
-end
+# function download_file(f::File, local_path=mktempdir(); update_period=Inf, kwargs...)
+#     if isdir(local_path) # existing directory, append filename
+#         local_path = joinpath(local_path, f.filename)
+#     elseif !isdir(dirname(local_path)) # a filepath, make sure directory exist
+#         error("destination directory does not exist; $(dirname(local_path))")
+#     end
+#     headers = canvas_headers()
+#     r = HTTP.download(f.url, local_path, headers; update_period=update_period, kwargs...)
+#     return r
+# end
 
 end # module

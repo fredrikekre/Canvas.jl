@@ -22,7 +22,7 @@ Canvas.reset_content
 Canvas.users
 Canvas.user
 Canvas.recent_students
-Canvas.upload_file
+Canvas.upload_file(::Canvas.Course, ::String)
 Canvas.content_share_users
 Canvas.preview_html
 Canvas.activity_stream

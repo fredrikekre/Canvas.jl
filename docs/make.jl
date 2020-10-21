@@ -11,8 +11,10 @@ makedocs(
     pages = Any[
         "index.md",
         "API Reference" => joinpath.("endpoints", [
-            "assignments.md",
             "courses.md",
+            "assignments.md",
+            "submissions.md",
+            "submission_comments.md",
             "files.md",
         ])
     ]
