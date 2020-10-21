@@ -3,8 +3,7 @@ using Canvas
 
 makedocs(
     format = Documenter.HTML(
-        prettyurls = haskey(ENV, "GITHUB_ACTIONS"),
-
+        prettyurls = false,
     ),
     modules = [Canvas],
     sitename = "Canvas.jl",
