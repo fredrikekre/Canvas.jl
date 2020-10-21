@@ -3,7 +3,8 @@ using Canvas
 
 makedocs(
     format = Documenter.HTML(
-        prettyurls = false,
+        canonical = "https://fredrikekre.github.io/Canvas.jl/v1",
+        prettyurls = true,
     ),
     modules = [Canvas],
     sitename = "Canvas.jl",
@@ -19,4 +20,5 @@ makedocs(
 
 deploydocs(
     repo = "github.com/fredrikekre/Canvas.jl.git",
+    push_preview=true,
 )
