@@ -4,7 +4,11 @@
 """
     Canvas.courses(; kwargs...) -> Vector{Course}, page_data
 
-*Canvas API documentation*: [List your courses (`GET /api/v1/courses`)]
+Return a paginated list of courses for the authenticated user.
+Return a vector of [`Course`](@ref)s and a dictionary with page data.
+
+**Canvas API documentation**:
+[List your courses (`GET /api/v1/courses`)]
 (https://canvas.instructure.com/doc/api/courses#method.courses.index)
 """
 function courses(; kwargs...)
@@ -15,7 +19,11 @@ end
 """
     Canvas.courses(user::User; kwargs...) -> Vector{Course}, page_data
 
-*Canvas API documentation*: [List courses for a user (`GET /api/v1/users/:user_id/courses`)]
+Return a paginated list of courses for the specified user.
+Return a vector of [`Course`](@ref)s and a dictionary with page data.
+
+**Canvas API documentation**:
+[List courses for a user (`GET /api/v1/users/:user_id/courses`)]
 (https://canvas.instructure.com/doc/api/courses#method.courses.user_index)
 """
 function courses(user::User; kwargs...)
@@ -26,7 +34,10 @@ end
 """
     Canvas.create_course(acc::Account; kwargs...) -> Course
 
-*Canvas API documentation*: [Create a new course (`POST /api/v1/accounts/:account_id/courses`)]
+Create a new course. Return a [`Course`](@ref).
+
+**Canvas API documentation**:
+[Create a new course (`POST /api/v1/accounts/:account_id/courses`)]
 (https://canvas.instructure.com/doc/api/courses#method.courses.create)
 """
 function create_course(acc::Account; kwargs...)
@@ -35,23 +46,27 @@ function create_course(acc::Account; kwargs...)
 end
 
 """
-    Canvas.upload_file(c::Course, file; kwargs...) -> File
+    Canvas.upload_file(c::Course, file::String; kwargs...) -> File
 
-Canvas API documentation: [Upload a file to a course (`POST /api/v1/courses/:course_id/files`)]
-(https://canvas.instructure.com/doc/api/courses.html#method.courses.create_file)
+Upload a file to the course. Return a [`File`](@ref).
+
+**Canvas API documentation**:
+[Upload a file to a course (`POST /api/v1/courses/:course_id/files`)]
+(https://canvas.instructure.com/doc/api/courses#method.courses.create_file)
 """
-function upload_file(c::Course, file; kwargs...)
+function upload_file(c::Course, file::String; kwargs...)
     return Internals.upload_file("/api/v1$(Internals.pid(c))/files", file; kwargs...)
 end
 
 """
-    Canvas.users(course::Course; kwargs...) -> Vector{Course}, page_data
+    Canvas.users(course::Course; kwargs...) -> Vector{User}, page_data
 
-**Request endpoints:**
- - `GET /api/v1/courses/:course_id/users`
- - `GET /api/v1/courses/:course_id/search_users`
- - Canvas API documentation:
-   [*List users in course*](https://canvas.instructure.com/doc/api/courses#method.courses.users)
+Return a paginated list of users in the course.
+Return a vector of [`User`](@ref)s and a dictionary with page data.
+
+**Canvas API documentation**:
+[List users in course (`GET /api/v1/courses/:course_id/users`)]
+(https://canvas.instructure.com/doc/api/courses#method.courses.users)
 """
 function users(course::Course; kwargs...)
     json, page_data = paged_request("GET", "/api/v1$(Internals.pid(course))/users"; kwargs...)
@@ -61,9 +76,12 @@ end
 """
     Canvas.recent_students(course::Course; kwargs...) -> Vector{User}, page_data
 
- - Request endpoint: `GET /api/v1/courses/:course_id/recent_students`
- - Canvas API documentation:
-   [*List recently logged in students*](https://canvas.instructure.com/doc/api/courses#method.courses.recent_students)
+Return a paginated list of users in the course ordered by how recently they have
+logged in. Return a vector of [`User`](@ref)s and a dictionary of page data.
+
+**Canvas API documentation**:
+[List recently logged in students (`GET /api/v1/courses/:course_id/recent_students`)]
+(https://canvas.instructure.com/doc/api/courses#method.courses.recent_students)
 """
 function recent_students(course::Course; kwargs...)
     json, page_data = paged_request("GET", "/api/v1$(Internals.pid(course))/recent_students"; kwargs...)
@@ -73,9 +91,11 @@ end
 """
     Canvas.user(course::Course, user::User; kwargs...) -> User
 
- - Request endpoint: `GET /api/v1/courses/:course_id/users/:id`
- - Canvas API documentation:
-   [*Get single user*](https://canvas.instructure.com/doc/api/courses#method.courses.user)
+Return information about a single user in the course. Return a [`User`](@ref).
+
+**Canvas API documentation**:
+[Get single user (`GET /api/v1/courses/:course_id/users/:id`)]
+(https://canvas.instructure.com/doc/api/courses#method.courses.user)
 """
 function user(course::Course, user::User; kwargs...)
     json = request("GET", "/api/v1$(Internals.pid(course))$(Internals.pid(user))"; kwargs...)
@@ -85,9 +105,12 @@ end
 """
     Canvas.content_share_users(course::Course; kwargs...) -> Vector{User}, page_data
 
- - Request endpoint: `GET /api/v1/courses/:course_id/content_share_users`
- - Canvas API documentation:
-   [*Search for content share users*](https://canvas.instructure.com/doc/api/courses#method.courses.content_share_users)
+Return a paginated list of users you can share content with.
+Return a vector of [`User`](@ref)s and a dictionary of page data.
+
+**Canvas API documentation**:
+[Search for content share users (`GET /api/v1/courses/:course_id/content_share_users`)]
+(https://canvas.instructure.com/doc/api/courses#method.courses.content_share_users)
 """
 function content_share_users(course::Course; kwargs...)
     json, page_data = paged_request("GET", "/api/v1$(Internals.pid(course))/content_share_users"; kwargs...)
@@ -97,9 +120,11 @@ end
 """
     Canvas.preview_html(course::Course; kwargs...) -> Dict
 
- - Request endpoint: `POST /api/v1/courses/:course_id/preview_html`
- - Canvas API documentation:
-   [*Preview processed html*](https://canvas.instructure.com/doc/api/courses#method.courses.preview_html)
+Preview HTML content processed for this course. Return a dictionary.
+
+**Canvas API documentation**:
+[Preview processed html (`POST /api/v1/courses/:course_id/preview_html`)]
+(https://canvas.instructure.com/doc/api/courses#method.courses.preview_html)
 """
 function preview_html(course::Course; kwargs...)
     json = request("GET", "/api/v1$(Internals.pid(course))/preview_html"; kwargs...)
@@ -109,12 +134,17 @@ end
 """
     Canvas.activity_stream(course::Course; summary::Bool=false, kwargs...) -> Vector{Dict}, page_data
 
+Return the authenticated users course-specific activity stream paginated.
+
 **Request endpoints:**
  - `GET /api/v1/courses/:course_id/activity_stream`
  - `GET /api/v1/courses/:course_id/activity_stream/summary`
- - Canvas API documentation:
-   [*Course activity stream*](https://canvas.instructure.com/doc/api/courses#method.courses.activity_stream)
-and [Course activity stream summary](https://canvas.instructure.com/doc/api/courses#method.courses.activity_stream_summary)
+
+**Canvas API documentation**:
+ - [Course activity stream (`GET /api/v1/courses/:course_id/activity_stream`)]
+   (https://canvas.instructure.com/doc/api/courses#method.courses.activity_stream)
+ - [Course activity stream (`GET /api/v1/courses/:course_id/activity_stream/summary`)]
+   (https://canvas.instructure.com/doc/api/courses#method.courses.activity_stream_summary)
 """
 function activity_stream(course::Course; summary=false, kwargs...)
     endpoint = "/api/v1$(Internals.pid(course))/activity_stream"
@@ -126,9 +156,11 @@ end
 """
     Canvas.todo(course::Course; kwargs...) -> Vector{Dict}, page_data
 
- - Request endpoint: `GET /api/v1/courses/:course_id/todo`
- - Canvas API documentation:
-   [*Course TODO items*](https://canvas.instructure.com/doc/api/courses#method.courses.destroy)
+Return the authenticated users course-specific todo items.
+
+**Canvas API documentation**:
+[Course TODO items (`GET /api/v1/courses/:course_id/todo`)]
+(https://canvas.instructure.com/doc/api/courses#method.courses.todo_items)
 """
 function todo(course::Course; kwargs...)
     json, page_data = paged_request("GET", "/api/v1$(Internals.pid(course))/todo"; kwargs...)
@@ -138,9 +170,11 @@ end
 """
     Canvas.delete_course(course::Course; kwargs...) -> Dict
 
- - Request endpoint: `DELETE /api/v1/courses/:id`
- - Canvas API documentation:
-   [Delete/Conclude a course](https://canvas.instructure.com/doc/api/courses#method.courses.destroy)
+Delete or conclude an existing course.
+
+**Canvas API documentation**:
+[Delete/Conclude a course (`DELETE /api/v1/courses/:id`)]
+(https://canvas.instructure.com/doc/api/courses#method.courses.destroy)
 """
 function delete_course(course::Course; kwargs...)
     json = request("DELETE", "/api/v1$(Internals.pid(course))"; kwargs...)
@@ -150,9 +184,11 @@ end
 """
     Canvas.settings(course::Course; kwargs...) -> Dict
 
- - Request endpoint: `GET /api/v1/courses/:course_id/settings`
- - Canvas API documentation:
-   [*Get course settings*](https://canvas.instructure.com/doc/api/courses#method.courses.api_settings)
+Return course settings as a dictionary.
+
+**Canvas API documentation**:
+[Get course settings (`GET /api/v1/courses/:course_id/settings`)]
+(https://canvas.instructure.com/doc/api/courses#method.courses.api_settings)
 """
 function settings(course::Course; kwargs...)
     json = request("GET", "/api/v1$(Internals.pid(course))/settings"; kwargs...)
@@ -162,21 +198,28 @@ end
 """
     Canvas.update_settings(course::Course; kwargs...) -> Dict
 
- - Request endpoint: `PUT /api/v1/courses/:course_id/settings`
- - Canvas API documentation:
-   [*Update course settings*](https://canvas.instructure.com/doc/api/courses#method.courses.update_settings)
+Update course settings. Return a dictionary.
+
+**Canvas API documentation**:
+[Update course settings (`PUT /api/v1/courses/:course_id/settings`)]
+(https://canvas.instructure.com/doc/api/courses#method.courses.update_settings)
 """
 function update_settings(course::Course; kwargs...)
     json = request("PUT", "/api/v1$(Internals.pid(course))/settings"; kwargs...)
     return json
 end
 
+# TODO: https://canvas.instructure.com/doc/api/courses#method.courses.student_view_student
+
 """
     Canvas.course(course::Course; kwargs...) -> Course
 
- - Request endpoint: `GET /api/v1/courses/:id`
- - Canvas API documentation:
-   [*Get a single course*](https://canvas.instructure.com/doc/api/courses#method.courses.show)
+Return details about a single course specified by id.
+Return a [`Course`](@ref).
+
+**Canvas API documentation**:
+[Get a single course (`GET /api/v1/courses/:id`)]
+(https://canvas.instructure.com/doc/api/courses#method.courses.show)
 """
 function course(course::Course; kwargs...)
     json = request("GET", "/api/v1$(Internals.pid(course))"; kwargs...)
@@ -186,33 +229,40 @@ end
 """
     Canvas.update_course(course::Course; kwargs...) -> Course
 
- - Request endpoint: `PUT /api/v1/courses/:id`
- - Canvas API documentation:
-   [*Update a course*](https://canvas.instructure.com/doc/api/courses#method.courses.update)
+Update an existing course and return the new details.
+Return a [`Course`](@ref).
+
+**Canvas API documentation**:
+[Update a course (`PUT /api/v1/courses/:id`)]
+(https://canvas.instructure.com/doc/api/courses#method.courses.update)
 """
 function update_course(course::Course; kwargs...)
     json = request("PUT", "/api/v1$(Internals.pid(course))"; kwargs...)
     return Course(json) # Maybe? Or just return json?
 end
 
-"""
-    Canvas.update_courses(acc::Account; kwargs...) -> Progress
+# TODO: batch update
+# """
+#     Canvas.update_courses(acc::Account; kwargs...) -> Progress
 
- - Request endpoint: `PUT /api/v1/accounts/:account_id/courses`
- - Canvas API documentation:
-   [*Update courses*](https://canvas.instructure.com/doc/api/courses#method.courses.batch_update)
-"""
-function update_courses(acc::Account; kwargs...)
-    json = request("PUT", "/api/v1$(Internals.pid(acc))/courses"; kwargs...)
-    return Progress(json)
-end
+#  - Request endpoint: `PUT /api/v1/accounts/:account_id/courses`
+#  - Canvas API documentation:
+#    [*Update courses*](https://canvas.instructure.com/doc/api/courses#method.courses.batch_update)
+# """
+# function update_courses(acc::Account; kwargs...)
+#     json = request("PUT", "/api/v1$(Internals.pid(acc))/courses"; kwargs...)
+#     return Progress(json)
+# end
 
 """
     Canvas.reset_content(course::Course; kwargs...) -> Course
 
- - Request endpoint: `POST /api/v1/courses/:course_id/reset_content`
- - Canvas API documentation:
-   [*Reset a course*](https://canvas.instructure.com/doc/api/courses#method.courses.reset_content)
+Delete the course and create a new equivalent course with no content but all sections
+and users moved overs. Return a [`Course`](@ref).
+
+**Canvas API documentation**:
+[Reset a course (`POST /api/v1/courses/:course_id/reset_content`)]
+(https://canvas.instructure.com/doc/api/courses#method.courses.reset_content)
 """
 function reset_content(course::Course; kwargs...)
     json = request("POST", "/api/v1$(Internals.pid(course))/reset_content"; kwargs...)
@@ -222,9 +272,12 @@ end
 """
     Canvas.effective_due_dates(course::Course; kwargs...) -> Dict
 
- - Request endpoint: `GET /api/v1/courses/:course_id/effective_due_dates`
- - Canvas API documentation:
-   [*Get effective due dates*](https://canvas.instructure.com/doc/api/courses#method.courses.effective_due_dates)
+For each assignment in the course, returns each assigned student's ID
+and their corresponding due date along with some grading period data.
+
+**Canvas API documentation**:
+[Get effective due dates (`GET /api/v1/courses/:course_id/effective_due_dates`)]
+(https://canvas.instructure.com/doc/api/courses#method.courses.effective_due_dates)
 """
 function effective_due_dates(course::Course; kwargs...)
     json = request("GET", "/api/v1$(Internals.pid(course))/effective_due_dates"; kwargs...)
@@ -234,17 +287,14 @@ end
 """
     Canvas.permissions(course::Course; kwargs...) -> Dict
 
- - Request endpoint: `GET /api/v1/courses/:course_id/permissions`
- - Canvas API documentation:
-   [*Permissions*](https://canvas.instructure.com/doc/api/courses#method.courses.permissions)
+Return permissions for the authenticated user in the specified course.
+Return a dictionary.
+
+**Canvas API documentation**:
+[Permissions (`GET /api/v1/courses/:course_id/permissions`)]
+(https://canvas.instructure.com/doc/api/courses#method.courses.permissions)
 """
 function permissions(course::Course; kwargs...)
     json = request("GET", "/api/v1$(Internals.pid(course))/permissions"; kwargs...)
     return json
 end
-
-# Get course copy status (deprecated)
-# https://canvas.instructure.com/doc/api/courses#method.content_imports.copy_course_status
-
-# Copy course content (deprecated)
-# https://canvas.instructure.com/doc/api/courses#method.content_imports.copy_course_content

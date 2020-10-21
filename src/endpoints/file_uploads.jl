@@ -1,5 +1,5 @@
 # 3-step file upload as documenter here: https://canvas.instructure.com/doc/api/file.file_uploads
-function Internals.upload_file(endpoint::String, file; api::CanvasAPI=getapi(), params::Dict=Dict{String,Any}(), kwargs...)
+function Internals.upload_file(endpoint::String, file::String; api::CanvasAPI=getapi(), params::Dict=Dict{String,Any}(), kwargs...)
     params = Dict{String,Any}(
         "name" => basename(file),
         "size" => stat(file).size,
