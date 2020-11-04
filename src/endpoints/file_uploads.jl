@@ -15,7 +15,7 @@ function Internals.upload_file(endpoint::String, file::String; api::CanvasAPI=ge
         body = collect(json["upload_params"])
         push!(body, "file"=>io) # file must be last argument
         form = HTTP.Form(body)
-        headers = canvas_headers(; auth=nothing) # should not be authenticated
+        headers = Internals.canvas_headers(; auth=nothing) # should not be authenticated
         return HTTP.request("POST", uri, headers, form)
     end
 
