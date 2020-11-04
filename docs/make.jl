@@ -17,6 +17,7 @@ makedocs(
             "submission_comments.md",
             "files.md",
             "users.md",
+            "tabs.md",
         ])
     ]
 )

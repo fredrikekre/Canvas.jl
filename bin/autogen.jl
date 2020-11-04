@@ -11,7 +11,7 @@ const outstructs = [
     "User", "CalendarLink", "Term", "CourseProgress", "Course", "Group", "LockInfo",
     "File", "Folder", "TurnitinSettings", "ExternalToolTagAttributes", "DiscussionTopic",
     "Assignment", "Submission", "GradingRules", "AssignmentGroup", "AssignmentOverride",
-    "Section", "Account",
+    "Section", "Account", "Tab",
 ]
 
 import JSON, OrderedCollections

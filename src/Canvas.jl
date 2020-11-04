@@ -214,6 +214,7 @@ include("endpoints/files.jl")
 include("endpoints/submissions.jl")
 include("endpoints/submission_comments.jl")
 include("endpoints/users.jl")
+include("endpoints/tabs.jl")
 # include("endpoints/groups.jl")
 
 # function download(f::File, path=tempdir(); kwargs...)

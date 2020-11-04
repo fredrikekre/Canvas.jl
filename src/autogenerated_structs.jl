@@ -864,3 +864,16 @@ struct Account <: CanvasObject
     workflow_state::Union{String,Nothing}
 end
 
+# Tab
+struct Tab <: CanvasObject
+    html_url::Union{String,Nothing}
+    id::Union{String,Nothing}
+    label::Union{String,Nothing}
+    type::Union{String,Nothing}
+    """only included if true"""
+    hidden::Union{Bool,Nothing}
+    """possible values are: public, members, admins, and none"""
+    visibility::Union{String,Nothing}
+    """1 based"""
+    position::Union{Int,Nothing}
+end
