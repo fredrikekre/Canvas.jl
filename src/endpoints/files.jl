@@ -325,3 +325,23 @@ function licenses(co::Union{Course,Group,User}; kwargs...)
     json, page_data = paged_request("GET", "/api/v1$(Internals.pid(co))/content_licenses"; kwargs...)
     return License.(json), page_data
 end
+
+# Helper function which is not really part of the upstream API
+"""
+    Canvas.download_file(f::File, local_path=mktempdir(); update_period=Inf, kwargs...)
+
+Download the [`File`](@ref). If `local_path` is a directory the file will be
+placed in this directory with the upstream filename. If `local_path` is a
+file path the file will be downloaded to that path directly, ignoring the
+upstream filename.
+"""
+function download_file(f::File, local_path=mktempdir(); update_period=Inf, kwargs...)
+    if isdir(local_path) # existing directory, append filename
+        local_path = joinpath(local_path, f.filename)
+    elseif !isdir(dirname(local_path)) # a filepath, make sure directory exist
+        error("destination directory does not exist; $(dirname(local_path))")
+    end
+    headers = Internals.canvas_headers()
+    r = HTTP.download(f.url, local_path, headers; update_period=update_period, kwargs...)
+    return r
+end

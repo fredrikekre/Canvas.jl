@@ -252,15 +252,4 @@ include("endpoints/tabs.jl")
 #     return Conversation(json)
 # end
 
-# function download_file(f::File, local_path=mktempdir(); update_period=Inf, kwargs...)
-#     if isdir(local_path) # existing directory, append filename
-#         local_path = joinpath(local_path, f.filename)
-#     elseif !isdir(dirname(local_path)) # a filepath, make sure directory exist
-#         error("destination directory does not exist; $(dirname(local_path))")
-#     end
-#     headers = canvas_headers()
-#     r = HTTP.download(f.url, local_path, headers; update_period=update_period, kwargs...)
-#     return r
-# end
-
 end # module

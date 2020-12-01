@@ -30,4 +30,5 @@ Canvas.media_folder
 Canvas.update_usage_rights
 Canvas.remove_usage_rights
 Canvas.licenses
+Canvas.download_file
 ```
