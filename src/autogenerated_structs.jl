@@ -600,7 +600,7 @@ struct Assignment <: CanvasObject
     use_rubric_for_grading::Union{Bool,Nothing}
     """(Optional) An object describing the basic attributes of the rubric, including
     the point total. Included if there is an associated rubric."""
-    rubric_settings::Union{String,Nothing}
+    rubric_settings::Union{Dict,Nothing}
     """(Optional) A list of scoring criteria and ratings for each rubric criterion.
     Included if there is an associated rubric."""
     rubric::Union{Vector,Nothing}
