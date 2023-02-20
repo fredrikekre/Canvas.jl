@@ -6,7 +6,7 @@ See https://fredrikekre.github.io/Canvas.jl/ for documentation.
 """
 module Canvas
 
-import HTTP, JSON, Dates, TimeZones
+import HTTP, JSON, Dates, TimeZones, URIs
 
 include("Internals.jl")
 
@@ -27,9 +27,9 @@ end
 ## API endpoint ##
 ##################
 struct CanvasAPI
-    uri::HTTP.URI
+    uri::URIs.URI
     auth::OAuth2
-    CanvasAPI(uri, auth) = new(HTTP.URI(uri), OAuth2(auth))
+    CanvasAPI(uri, auth) = new(URIs.URI(uri), OAuth2(auth))
 end
 
 # Default API
@@ -136,7 +136,7 @@ end
 function Internals.request(method::String, endpoint::String=""; api::CanvasAPI=getapi(),
                            headers=nothing, params=nothing, kwargs...)
     headers = Internals.canvas_headers(headers; auth=api.auth)
-    uri = HTTP.merge(api.uri, path=endpoint)
+    uri = URIs.URI(api.uri, path=endpoint)
     params = Internals.process_params(params)
     r = HTTP.request(method, uri, headers; query=params, kwargs...)
     @assert !HTTP.hasheader(r, "Link")
@@ -168,7 +168,7 @@ function Internals.paged_request(
         start_page="", params=nothing, kwargs...)
     headers = Internals.canvas_headers(headers; auth=api.auth)
     if isempty(start_page) # first request
-        uri = HTTP.merge(api.uri, path=endpoint)
+        uri = URIs.URI(api.uri, path=endpoint)
         params = Internals.process_params(params)
         r = HTTP.request(method, uri, headers; query=params, kwargs...)
     else
