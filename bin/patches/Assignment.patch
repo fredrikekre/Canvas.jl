@@ -1,8 +1,8 @@
 diff --git a/Assignment.jl b/Assignment.jl
-index e099623..a10d94f 100644
+index b661fd8..f06d227 100644
 --- a/Assignment.jl
 +++ b/Assignment.jl
-@@ -173,7 +173,7 @@ struct Assignment <: CanvasObject
+@@ -173,13 +173,13 @@ struct Assignment <: CanvasObject
      information from the api) current submission for the assignment. See the
      Submissions API for an example response. If the user does not have a submission,
      this key will be absent."""
@@ -11,6 +11,13 @@ index e099623..a10d94f 100644
      """(Optional) If true, the rubric is directly tied to grading the assignment.
      Otherwise, it is only advisory. Included if there is an associated rubric."""
      use_rubric_for_grading::Union{Bool,Nothing}
+     """(Optional) An object describing the basic attributes of the rubric, including
+     the point total. Included if there is an associated rubric."""
+-    rubric_settings::Union{String,Nothing}
++    rubric_settings::Union{Dict,Nothing}
+     """(Optional) A list of scoring criteria and ratings for each rubric criterion.
+     Included if there is an associated rubric."""
+     rubric::Union{Vector,Nothing}
 @@ -223,4 +223,11 @@ struct Assignment <: CanvasObject
      courses using New Gradebook."""
      post_manually::Union{Bool,Nothing}
